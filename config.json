@@ -1,0 +1,7 @@
+{
+    "sheet_with_urls" : "sheets/GRI_2017_2020 (1).xlsx",
+    "downloads_folder" : "downloads/",
+    "id_column_name" : "BRnum",
+    "columns_to_check" : ["Pdf_URL", "Report Html Address"],
+    "sheet_with_metadata" : "sheets/Metadata2006_2016.xlsx"
+}
