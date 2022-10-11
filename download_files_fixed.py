@@ -28,8 +28,8 @@ def already_downloaded_ids(download_location):
     files = glob.glob(os.path.join(download_location, "*.pdf")) 
     return [os.path.basename(f)[:-4] for f in files]
 
-def read_data(filepath, sheetname, index_col_name):
-    df = pd.read_excel(filepath, sheet_name = sheetname, index_col = index_col_name)
+def read_data(details):
+    df = pd.read_excel(details["path"], sheet_name = details["sheet"], index_col = details["id_column_name"])
     return df
     
 def filter_already_downloaded(dataframe, download_location):
@@ -72,7 +72,7 @@ async def try_download_all(dataframe, headers, config):
 with open("config.json", "r") as f:
     config = json.load(f)
 
-data = read_data(config["sheet_with_urls"], 0, config["id_column_name"])
+data = read_data(config["sheet_with_urls"])
 
 print("dataframe loaded")
 
