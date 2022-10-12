@@ -31,7 +31,7 @@ On Windows:
 1. Press Windows Key + X
 2. Choose "Windows PowerShell" (may instead be called "Command Prompt" on some systems)
 
-<img src="https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/powershell.png" alt ="Screenshot of Step 2" style="max-height:25rem" />
+![Screenshot of Step 2](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/powershell.png)
 
 On Apple (note: I don't have an Apple computer myself so I just copied these instructions from someone else):
 
