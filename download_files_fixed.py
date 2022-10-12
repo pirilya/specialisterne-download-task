@@ -14,27 +14,32 @@ import aiohttp
 
 import json
 
-###!!NB!! column with URL's should be called: "Pdf_URL" and the year should be in column named: "Pub_Year"
 
-### File names will be the ID from the ID column (e.g. BR2005.pdf)
-
-#writer = pd.ExcelWriter(pth+'check_3.xlsx', engine='xlsxwriter', options={'strings_to_urls': False})
-
-#df2.to_excel(writer, sheet_name="dwn")
-#writer.save()
-#writer.close()
-
-def already_downloaded_ids(download_location):
-    files = glob.glob(os.path.join(download_location, "*.pdf")) 
-    return [os.path.basename(f)[:-4] for f in files]
-
-def read_data(details):
-    df = pd.read_excel(details["path"], sheet_name = details["sheet"], index_col = details["id_column_name"])
+def read_data(path, id_column_name):
+    df = pd.read_excel(path,  index_col = id_column_name)
     return df
-    
-def filter_already_downloaded(dataframe, download_location):
-    exist = already_downloaded_ids(download_location)
-    return dataframe[~dataframe.index.isin(exist)]
+
+def parse_config(filepath):
+    with open(filepath, "r") as f:
+        raw_config = json.load(f)
+    config = {}
+    config["download_path"] = raw_config["downloads_location"]
+    config["id_column_name"] = raw_config["id_column_name"]
+    config["columns_to_check"] = raw_config["columns_to_check"]
+    if raw_config["timeout"].isnumeric():
+        config["timeout"] = int(raw_config["timeout"])
+    else:
+        raise Exception(f"Du skrev {raw_config['timeout']} i timeout, men det er ikke et positivt helt tal.")
+    if os.path.isdir(raw_config["sheets_location"]):
+        config["url_sheet_path"] = os.path.join(raw_config["sheets_location"], raw_config["name_of_sheet_with_urls"])
+        config["result_sheet_path"] = os.path.join(raw_config["sheets_location"], raw_config["name_of_sheet_with_results"])
+    else:
+        raise Exception(f"Du skrev {raw_config['sheets_location']} i sheets_location, men det er ikke navnet på en mappe jeg kan finde.")
+    if not os.path.exists(config["url_sheet_path"]):
+        raise Exception(f"Du skrev {raw_config['name_of_sheet_with_urls']} i name_of_sheet_with_urls, men det er ikke navnet på en fil som findes i {raw_config['sheets_location']}")
+    if not os.path.isdir(config["download_path"]):
+        os.makedirs(config["download_path"])
+    return config
 
 # returns void if the download succeeded, throws some kind of error if it didn't
 async def download_file(session, url, download_location):
@@ -49,11 +54,13 @@ async def download_file(session, url, download_location):
     # the control flow is simpler if we're guaranteed to always throw an exception if the download fails
     raise Exception("Download failed")
 
-# returns true if the download succeeded and false if it didn't
+
+# returns true if, after execution, the file is downloaded, and false if it isn't
 async def try_multiple_columns_download_file(session, dataframe, line_id, config):
-    download_path = os.path.join(config["downloads_folder"] + str(line_id) + '.pdf')
+    download_path = os.path.join(config["download_path"], str(line_id) + '.pdf')
+    if os.path.exists(download_path):
+        return True
     urls_to_try = [ dataframe.at[line_id, column_name] for column_name in config["columns_to_check"] ]
-    #urls_to_try = [ dataframe.at[line_id,'Pdf_URL'], dataframe.at[line_id,'Report Html Address'] ]
     for url in urls_to_try:
         if (type(url) == str): # pandas reads empty cells as floats, we gotta check for that or the script gets confused
             try:
@@ -64,27 +71,54 @@ async def try_multiple_columns_download_file(session, dataframe, line_id, config
                 #print("Error of type:", type(e), "Error content:", e)
     return False
 
-async def try_download_all(dataframe, headers, config):
+
+async def try_download_all(dataframe, config):
+    # setting the same user-agent that my actual browser has, so we don't get caught by bot detection
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"}
+    
     async with aiohttp.ClientSession( headers = headers ) as session:
         function_calls = [try_multiple_columns_download_file(session, dataframe, j, config) for j in dataframe.index]
-        await asyncio.gather(*function_calls)
+        return await asyncio.gather(*function_calls)
 
-with open("config.json", "r") as f:
-    config = json.load(f)
 
-data = read_data(config["sheet_with_urls"])
+async def do_downloads():
 
-print("dataframe loaded")
+    # if the config file is invalid, we shouldn't execute the rest of the code!
+    try:
+        config = parse_config("config.json")
+    except Exception as e:
+        print(e)
+        return
 
-# this line is of course just here for testing, so it doesn't take forever to run
-data = data[:50].copy()
+    try:
+        data = read_data(config["url_sheet_path"], config["id_column_name"])
+    except ValueError:
+        print(f"Du skrev {config['id_column_name']} i id_column_name, men det er ikke en kolonne som eksisterer på URL-arket.")
+        return
+    for column_name in config["columns_to_check"]:
+        if not column_name in data.columns:
+            print(f"Du skrev {column_name} i columns_to_check, men det er ikke en kolonne som eksisterer på URL-arket.")
+            return
 
-data = filter_already_downloaded(data, config["downloads_folder"])
+    print("URL-arket er indlæst")
 
-# setting the same user-agent that my actual browser has, so we don't get caught by bot detection
-headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"}
+    # this line is of course just here for testing, so it doesn't take forever to run
+    data = data[:10].copy()
 
-asyncio.run(try_download_all(data, headers, config))
+    results = await try_download_all(data, config)
+
+    print("Alle downloads er færdige")
+
+    results_df = pd.DataFrame(index = data.index)
+    results_df["pdf_downloaded"] = results
+    try:
+        results_df.to_excel(config["result_sheet_path"])
+        print(f"Resultaterne er gemt i {config['result_sheet_path']}")
+    except PermissionError:
+        print(f"Kunne ikke gemme download-resultater på {config['result_sheet_path']}. Det kan være fordi du har filen åben.")
+
+    
+asyncio.run(do_downloads())
 '''
 py download_files_fixed.py
 '''
