@@ -20,9 +20,23 @@ def read_data(path, id_column_name):
     return df
 
 def parse_config(filepath):
-    with open(filepath, "r") as f:
-        raw_config = json.load(f)
+    try:
+        with open(filepath, "r") as f:
+            raw_config = json.load(f)
+    except FileNotFoundError:
+        raise Exception(f"Kan ikke finde en fil ved navn {filepath}")
+    except json.decoder.JSONDecodeError as e:
+        raise Exception(f"Din config-fil er misdannet. ({e})")
     config = {}
+    for config_entry_name in ["downloads_location", 
+                                "sheets_location", 
+                                "name_of_sheet_with_urls",
+                                "name_of_sheet_with_results",
+                                "id_column_name",
+                                "columns_to_check",
+                                "timeout"]:
+        if config_entry_name not in raw_config:
+            raise Exception(f"Din config-fil mangler {config_entry_name}")
     config["download_path"] = raw_config["downloads_location"]
     config["id_column_name"] = raw_config["id_column_name"]
     config["columns_to_check"] = raw_config["columns_to_check"]
@@ -35,6 +49,9 @@ def parse_config(filepath):
         config["result_sheet_path"] = os.path.join(raw_config["sheets_location"], raw_config["name_of_sheet_with_results"])
     else:
         raise Exception(f"Du skrev {raw_config['sheets_location']} i sheets_location, men det er ikke navnet på en mappe jeg kan finde.")
+    for pathname in ["url_sheet_path", "result_sheet_path"]:
+        if os.path.splitext(config[pathname])[1] == "":
+            config[pathname] += ".xlsx"
     if not os.path.exists(config["url_sheet_path"]):
         raise Exception(f"Du skrev {raw_config['name_of_sheet_with_urls']} i name_of_sheet_with_urls, men det er ikke navnet på en fil som findes i {raw_config['sheets_location']}")
     if not os.path.isdir(config["download_path"]):
