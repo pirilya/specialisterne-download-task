@@ -7,11 +7,6 @@ import aiohttp
 
 import json
 
-
-def read_data(path):
-    df = pd.read_excel(path)
-    return df
-
 def parse_config(filepath):
     try:
         with open(filepath, "r") as f:
@@ -55,6 +50,16 @@ def parse_config(filepath):
         os.makedirs(config["download_path"])
     return config
 
+
+def check_columns(df, config):
+    if not config["save_as"] in df.columns:
+        return False, f"You wrote {config['save_as']} in id_column_name, but that's not the title of a column that exists in the URL sheet."
+    for column_name in config["columns_to_check"]:
+        if not column_name in df.columns:
+            return False, f"You wrote {column_name} in columns_to_check, but that's not the title of a column that exists in the URL sheet."
+    return True, None
+
+
 # returns void if the download succeeded, throws some kind of error if it didn't
 async def download_file(session, url, download_location, timeout):
     # turning off ssl checking is maybe risky but some of the URLs don't work if we have it turned on...
@@ -95,6 +100,17 @@ async def try_download_all(dataframe, config):
         return await asyncio.gather(*function_calls)
 
 
+def save_download_results(dataframe, results, filename_column, results_filename):
+    results_df = pd.DataFrame(index = data.index)
+    results_df[filename_column] = dataframe[filename_column]
+    results_df["pdf_downloaded"] = results
+    try:
+        results_df.to_excel(results_filename, index = False)
+        return True
+    except PermissionError:
+        return False
+
+
 async def do_downloads():
 
     # if the config file is invalid, we shouldn't execute the rest of the code!
@@ -104,14 +120,12 @@ async def do_downloads():
         print(e)
         return
 
-    data = read_data(config["url_sheet_path"])
-    if not config["save_as"] in data.columns:
-        print(f"You wrote {config['save_as']} in id_column_name, but that's not the title of a column that exists in the URL sheet.")
+    data = pd.read_excel(config["url_sheet_path"])
+
+    success, err_msg = check_columns(data, config)
+    if not success:
+        print(err_msg)
         return
-    for column_name in config["columns_to_check"]:
-        if not column_name in data.columns:
-            print(f"You wrote {column_name} in columns_to_check, but that's not the title of a column that exists in the URL sheet.")
-            return
 
     print("URL sheet has been read. Starting downloads...")
 
@@ -119,14 +133,12 @@ async def do_downloads():
 
     print("All downloads are done. Saving results...")
 
-    results_df = pd.DataFrame(index = data.index)
-    results_df[config["save_as"]] = data[config["save_as"]]
-    results_df["pdf_downloaded"] = results
-    try:
-        results_df.to_excel(config["result_sheet_path"], index = False)
+    success = save_download_results(data, results, config["save_as"], config["result_sheet_path"])
+    if success:
         print(f"Results saved in {config['result_sheet_path']}")
-    except PermissionError:
-        print(f"could not save download results in {config['result_sheet_path']}. This might be because you have the file open.")
+    else:
+        print(f"Could not save download results in {config['result_sheet_path']}. This might be because you have the file open.")
+
 
     
 asyncio.run(do_downloads())
