@@ -1,8 +1,10 @@
-# PDF downloader
+# Summary
 
 This script will download pdf reports from links in a spreadsheet, and report the results back in a different spreadsheet, according to the settings the user has specified in the file `config.json`.
 
 # Running the script
+
+## 0. Make sure you have Python installed
 
 This is a Python script, so in order to run it you need to have Python installed. Python is automatically installed on Mac computers but not on Windows. [You can download Python here.](https://www.python.org/downloads/)
 
@@ -14,7 +16,11 @@ You can find them right here on this page on github.com by scrolling up a bit, o
 
 Make sure to put them in the same folder!
 
-## 2. Open a terminal / command line. 
+## 2. Edit config.json
+
+The file config.json is where all your settings are, so if you want to change those, you need to edit config.json. The explanation of how to do this is in the section called [The config file](#the-config-file).
+
+## 3. Open a terminal / command line. 
 
 On Windows:
 
@@ -29,20 +35,20 @@ On Apple (note: I don't have an Apple computer myself so I just copied these ins
 2. Type "terminal" in the search field
 3. Double-click Terminal
 
-## 3. Tell the terminal what folder to run in.
+## 4. Tell the terminal what folder to run in.
 
 1. Copy the address of the folder that you put `download_files.py` and `config.json` in, back in step 1.
 2. In the terminal, type "cd" and then paste the address of the folder
 
 [insert screenshot of this]
 
-## 4. Run the script
+## 5. Run the script
 
 In the terminal, type `python download_files.py` and press Enter.
 
 [note to self: either explain `pip install`, or set up a venv and explain that]
 
-## 5. Error messages
+## 6. Error messages
 
 If you get an error that says something like `The term "python" is not recognized`, that means you don't have python installed. Go back to step 0 and install python.
 
