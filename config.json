@@ -3,7 +3,7 @@
     "sheets_location" : "sheets/",
     "name_of_sheet_with_urls" : "GRI_2017_2020 (1).xlsx",
     "name_of_sheet_with_results" : "Results_2017_2020.xlsx",
-    "id_column_name" : "BRnum",
+    "filename_column" : "BRnum",
     "columns_to_check" : ["Pdf_URL", "Report Html Address"],
     "timeout" : "30"
 }
