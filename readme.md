@@ -13,9 +13,9 @@ If you're on Windows and want to know whether you have Python installed, you can
 ## 1. Download `download_files.py`, `config.json`, and `requirements.txt`
 
 You can find them right here on this page on github.com by scrolling up a bit, or you can download them from these links:
-[`download_files.py`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/download_files.py")
-[`config.json`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/config.json")
-[`requirements.txt`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/requirements.txt")
+[`download_files.py`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/download_files.py)
+[`config.json`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/config.json)
+[`requirements.txt`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/requirements.txt)
 (follow the link, right click, Save page as...)
 
 Make sure to put them all in the same folder!
@@ -24,14 +24,14 @@ Make sure to put them all in the same folder!
 
 The file config.json is where all your settings are, so if you want to change those, you need to edit config.json. The explanation of how to do this is in the section called [The config file](#the-config-file).
 
-## 3. Open a terminal / command line. 
+## 3. Open a terminal / command line
 
 On Windows:
 
 1. Press Windows Key + X
 2. Choose "Windows PowerShell" (may instead be called "Command Prompt" on some systems)
 
-![Screenshot of Step 2](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/powershell.png)
+<img src="https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/powershell.png" alt ="Screenshot of Step 2" style="max-height:25rem" />
 
 On Apple (note: I don't have an Apple computer myself so I just copied these instructions from someone else):
 
@@ -39,14 +39,15 @@ On Apple (note: I don't have an Apple computer myself so I just copied these ins
 2. Type "terminal" in the search field
 3. Double-click Terminal
 
-## 4. Tell the terminal what folder to run in.
+## 4. Tell the terminal what folder to run in
 
-1. Copy the address of the folder that you put `download_files.py` and `config.json` in, back in step 1.
+1. Copy the address of the folder that you put `download_files.py`, `config.json` and `requirements.txt` in, back in step 1.
+
+   ![Screenshot of Step 1](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/copy-address.png)
+
 2. In the terminal, type "cd" and then paste the address of the folder
 
-![Screenshot of Step 1](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/copy-address.png)
-
-![Screenshot of Step 2](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/cd.png)
+   ![Screenshot of Step 2](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/cd.png)
 
 ## 5. Install libraries
 
