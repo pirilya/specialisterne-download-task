@@ -15,8 +15,8 @@ import aiohttp
 import json
 
 
-def read_data(path, id_column_name):
-    df = pd.read_excel(path,  index_col = id_column_name)
+def read_data(path):
+    df = pd.read_excel(path)
     return df
 
 def parse_config(filepath):
@@ -24,38 +24,40 @@ def parse_config(filepath):
         with open(filepath, "r") as f:
             raw_config = json.load(f)
     except FileNotFoundError:
-        raise Exception(f"Kan ikke finde en fil ved navn {filepath}")
+        raise Exception(f"Cannot find a file named {filepath}")
     except json.decoder.JSONDecodeError as e:
-        raise Exception(f"Din config-fil er misdannet. ({e})")
+        raise Exception(f"Your config file is not a valid json file. (This is what the computer thinks is the issue: {e})")
     config = {}
     for config_entry_name in ["downloads_location", 
                                 "sheets_location", 
                                 "name_of_sheet_with_urls",
                                 "name_of_sheet_with_results",
-                                "id_column_name",
+                                "filename_column",
                                 "columns_to_check",
                                 "timeout"]:
         if config_entry_name not in raw_config:
-            raise Exception(f"Din config-fil mangler {config_entry_name}")
+            raise Exception(f"Your config file is missing {config_entry_name}")
     config["download_path"] = raw_config["downloads_location"]
-    config["id_column_name"] = raw_config["id_column_name"]
+    config["save_as"] = raw_config["filename_column"]
     config["columns_to_check"] = raw_config["columns_to_check"]
     if type(config["columns_to_check"]) != list:
-        raise Exception(f"Du skrev {config['columns_to_check']} i columns_to_check, men columns_to_check skal være en liste (pakket ind i [])")
-    if raw_config["timeout"].isnumeric():
+        raise Exception(f"You wrote {config['columns_to_check']} in columns_to_check, but columns_to_check needs to be a list (wrapped in square brackets [])")
+    try:
         config["timeout"] = int(raw_config["timeout"])
-    else:
-        raise Exception(f"Du skrev {raw_config['timeout']} i timeout, men det er ikke et positivt helt tal.")
+        if config["timeout"] <= 0:
+            raise ValueError
+    except ValueError as e:
+        raise Exception(f"You wrote {raw_config['timeout']} in timeout, but that's not a positive whole number.")
     if os.path.isdir(raw_config["sheets_location"]):
         config["url_sheet_path"] = os.path.join(raw_config["sheets_location"], raw_config["name_of_sheet_with_urls"])
         config["result_sheet_path"] = os.path.join(raw_config["sheets_location"], raw_config["name_of_sheet_with_results"])
     else:
-        raise Exception(f"Du skrev {raw_config['sheets_location']} i sheets_location, men det er ikke navnet på en mappe jeg kan finde.")
+        raise Exception(f"You wrote {raw_config['sheets_location']} in sheets_location, but that doesn't seem to be a folder that exists.")
     for pathname in ["url_sheet_path", "result_sheet_path"]:
         if os.path.splitext(config[pathname])[1] == "":
             config[pathname] += ".xlsx"
     if not os.path.exists(config["url_sheet_path"]):
-        raise Exception(f"Du skrev {raw_config['name_of_sheet_with_urls']} i name_of_sheet_with_urls, men det er ikke navnet på en fil som findes i {raw_config['sheets_location']}")
+        raise Exception(f"You wrote {raw_config['name_of_sheet_with_urls']} in name_of_sheet_with_urls, but that's not the name of a file that exists in {raw_config['sheets_location']}")
     if not os.path.isdir(config["download_path"]):
         os.makedirs(config["download_path"])
     return config
@@ -76,7 +78,8 @@ async def download_file(session, url, download_location):
 
 # returns true if, after execution, the file is downloaded, and false if it isn't
 async def try_multiple_columns_download_file(session, dataframe, line_id, config):
-    download_path = os.path.join(config["download_path"], str(line_id) + '.pdf')
+    filename = dataframe.at[line_id, config["save_as"]]
+    download_path = os.path.join(config["download_path"], filename + '.pdf')
     if os.path.exists(download_path):
         return True
     urls_to_try = [ dataframe.at[line_id, column_name] for column_name in config["columns_to_check"] ]
@@ -109,32 +112,32 @@ async def do_downloads():
         print(e)
         return
 
-    try:
-        data = read_data(config["url_sheet_path"], config["id_column_name"])
-    except ValueError:
-        print(f"Du skrev {config['id_column_name']} i id_column_name, men det er ikke en kolonne som eksisterer på URL-arket.")
+    data = read_data(config["url_sheet_path"])
+    if not config["save_as"] in data.columns:
+        print(f"You wrote {config['save_as']} in id_column_name, but that's not the title of a column that exists in the URL sheet.")
         return
     for column_name in config["columns_to_check"]:
         if not column_name in data.columns:
-            print(f"Du skrev {column_name} i columns_to_check, men det er ikke en kolonne som eksisterer på URL-arket.")
+            print(f"You wrote {column_name} in columns_to_check, but that's not the title of a column that exists in the URL sheet.")
             return
 
-    print("URL-arket er indlæst")
+    print("URL sheet has been read. Starting downloads...")
 
     # this line is of course just here for testing, so it doesn't take forever to run
     data = data[:10].copy()
 
     results = await try_download_all(data, config)
 
-    print("Alle downloads er færdige")
+    print("All downloads are done. Saving results...")
 
     results_df = pd.DataFrame(index = data.index)
+    results_df[config["save_as"]] = data[config["save_as"]]
     results_df["pdf_downloaded"] = results
     try:
-        results_df.to_excel(config["result_sheet_path"])
-        print(f"Resultaterne er gemt i {config['result_sheet_path']}")
+        results_df.to_excel(config["result_sheet_path"], index = False)
+        print(f"Results saved in {config['result_sheet_path']}")
     except PermissionError:
-        print(f"Kunne ikke gemme download-resultater på {config['result_sheet_path']}. Det kan være fordi du har filen åben.")
+        print(f"could not save download results in {config['result_sheet_path']}. This might be because you have the file open.")
 
     
 asyncio.run(do_downloads())

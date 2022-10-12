@@ -116,13 +116,13 @@ IF YOU PUT THE NAME OF AN EXISTING SPREADSHEET, THAT SPREADSHEET WILL GET OVERWR
 
 You can write it with or without the `.xlsx`, up to you, either works.
 
-## id_column_name
+## filename_column
 
 ```
-"id_column_name" : "BRnum",
+"filename_column" : "BRnum",
 ```
 
-The title of the column in the URLs spreadsheet that has the ID of the file.
+The title of the column in the URLs spreadsheet that has the name you want to give the downloaded files.
 
 ## columns_to_check
 
