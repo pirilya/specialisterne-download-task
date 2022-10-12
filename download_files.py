@@ -40,6 +40,8 @@ def parse_config(filepath):
     config["download_path"] = raw_config["downloads_location"]
     config["id_column_name"] = raw_config["id_column_name"]
     config["columns_to_check"] = raw_config["columns_to_check"]
+    if type(config["columns_to_check"]) != list:
+        raise Exception(f"Du skrev {config['columns_to_check']} i columns_to_check, men columns_to_check skal være en liste (pakket ind i [])")
     if raw_config["timeout"].isnumeric():
         config["timeout"] = int(raw_config["timeout"])
     else:

@@ -6,9 +6,13 @@ This script will download pdf reports from links in a spreadsheet, and report th
 
 This is a Python script, so in order to run it you need to have Python installed. Python is automatically installed on Mac computers but not on Windows. [You can download Python here.](https://www.python.org/downloads/)
 
+If you're on Windows and want to know whether you have Python installed, you can go to Settings -> Apps -> Apps & Features to see a list of all programs installed on your computer. If Python is on that list, you have Python installed.
+
 ## 1. Download `download_files.py` and `config.json`
 
 You can find them right here on this page on github.com by scrolling up a bit, or you can download them from these links: [`download_files.py`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/download_files.py") [`config.json`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/config.json") (follow the link, right click, Save page as...)
+
+Make sure to put them in the same folder!
 
 ## 2. Open a terminal / command line. 
 
@@ -70,19 +74,35 @@ I will now explain what each setting does.
 
 ## downloads_location
 
-This setting tells the program what folder to put the downloaded PDFs in. It can be an absolute path, such as "C:\Users\KOM\Documents\download-task\downloads" (Windows) or "/Users/KOM/Documents/download-task/downloads" (Mac), or a relative path, such as "downloads".
+```
+"downloads_location" : "downloads/",
+```
+
+This setting tells the program what folder to put the downloaded PDFs in. It can be an absolute path, such as `"C:\Users\KOM\Documents\download-task\downloads"` (Windows) or `"/Users/KOM/Documents/download-task/downloads"` (Mac), or a relative path, such as `"downloads"`.
 
 ## sheets_location
 
-This setting tells the program what folder to look for the spreadsheets in. It can be an absolute path, such as "C:\Users\KOM\Documents\download-task\sheets" (Windows) or "/Users/KOM/Documents/download-task/sheets" (Mac), or a relative path, such as "sheets".
+```
+"sheets_location" : "sheets/",
+```
+
+This setting tells the program what folder to look for the spreadsheets in. It can be an absolute path, such as `"C:\Users\KOM\Documents\download-task\sheets"` (Windows) or `"/Users/KOM/Documents/download-task/sheets"` (Mac), or a relative path, such as `"sheets"`.
 
 ## name_of_sheet_with_urls
+
+```
+"name_of_sheet_with_urls" : "GRI_2017_2020 (1).xlsx",
+```
 
 The name of the spreadsheet that has the URLs you want to download. 
 
 You can write it with or without the `.xlsx`, up to you, either works.
 
 ## name_of_sheet_with_results
+
+```
+"name_of_sheet_with_results" : "Results_2017_2020.xlsx",
+```
 
 The name of the spreadsheet you want to put the results in.  
 
@@ -92,14 +112,28 @@ You can write it with or without the `.xlsx`, up to you, either works.
 
 ## id_column_name
 
+```
+"id_column_name" : "BRnum",
+```
+
 The title of the column in the URLs spreadsheet that has the ID of the file.
 
 ## columns_to_check
 
+```
+"columns_to_check" : ["Pdf_URL", "Report Html Address"],
+```
+
 The titles of the columns in the URLs spreadsheet that has the links you want to try downloading from.
 For each line in the spreadsheet, the program will try these columns in the order you put them.
 
+Note that the column names are wrapped in square brackets []. This is important! Do not remove the square brackets! The square brackets are how we tell the program that we're giving it a list of values, instead of just one value.
+
 ## timeout
+
+```
+"timeout" : "30"
+```
 
 Sometimes a file takes a long time to download. This setting tells the program how many seconds it should wait for a download before giving up on it.
 
