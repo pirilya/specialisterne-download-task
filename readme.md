@@ -10,11 +10,15 @@ This is a Python script, so in order to run it you need to have Python installed
 
 If you're on Windows and want to know whether you have Python installed, you can go to Settings -> Apps -> Apps & Features to see a list of all programs installed on your computer. If Python is on that list, you have Python installed.
 
-## 1. Download `download_files.py` and `config.json`
+## 1. Download `download_files.py`, `config.json`, and `requirements.txt`
 
-You can find them right here on this page on github.com by scrolling up a bit, or you can download them from these links: [`download_files.py`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/download_files.py") [`config.json`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/config.json") (follow the link, right click, Save page as...)
+You can find them right here on this page on github.com by scrolling up a bit, or you can download them from these links:
+[`download_files.py`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/download_files.py")
+[`config.json`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/config.json")
+[`requirements.txt`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/requirements.txt")
+(follow the link, right click, Save page as...)
 
-Make sure to put them in the same folder!
+Make sure to put them all in the same folder!
 
 ## 2. Edit config.json
 
@@ -27,7 +31,7 @@ On Windows:
 1. Press Windows Key + X
 2. Choose "Windows PowerShell" (may instead be called "Command Prompt" on some systems)
 
-[maybe insert screenshot of this]
+![Screenshot of Step 2](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/powershell.png)
 
 On Apple (note: I don't have an Apple computer myself so I just copied these instructions from someone else):
 
@@ -40,7 +44,9 @@ On Apple (note: I don't have an Apple computer myself so I just copied these ins
 1. Copy the address of the folder that you put `download_files.py` and `config.json` in, back in step 1.
 2. In the terminal, type "cd" and then paste the address of the folder
 
-[insert screenshot of this]
+![Screenshot of Step 1](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/copy-address.png)
+
+![Screenshot of Step 2](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/cd.png)
 
 ## 5. Install libraries
 
@@ -52,13 +58,15 @@ In the terminal, type `pip install -r requirements.txt` and press Enter.
 
 In the terminal, type `python download_files.py` and press Enter.
 
-## 6.5. Error messages
+# Error messages
 
 If you get an error that says something like `The term "python" is not recognized`, that means you don't have python installed. Go back to step 0 and install python.
 
 If you get an error that says `ModuleNotFoundError: No module named '{module name}'`, that means you're missing a library. Did you skip step 5?
 
-All other error messages will be explained in a later section.
+Other than that, I've tried to make sure that if something goes wrong, the program writes you a reasonably understandable error message that tells you what the something is.
+
+If you get some other kind of error message, that means things went wrong in a way I didn't predict was possible. I suggest you try running the program again, and if the issue keeps happening, download a fresh copy of config.json and start over on editing it to have the settings you want.
 
 # The config file
 
@@ -148,9 +156,3 @@ Note that the column names are wrapped in square brackets []. This is important!
 Sometimes a file takes a long time to download. This setting tells the program how many seconds it should wait for a download before giving up on it.
 
 If you set this to a high number, the program will probably take a longer time to run.
-
-# Error messages
-
-I've tried to make sure that if something goes wrong, the program writes you a reasonably understandable error message that tells you what the something is.
-
-If you get an error message that is many lines long, and has bits of code in it, that's not one of mine, and it means things went wrong in a way I didn't predict was possible. I suggest you try running the program again, and if the issue keeps happening, download a fresh copy of config.json and start over on editing it to have the settings you want.
