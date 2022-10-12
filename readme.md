@@ -42,17 +42,21 @@ On Apple (note: I don't have an Apple computer myself so I just copied these ins
 
 [insert screenshot of this]
 
-## 5. Run the script
+## 5. Install libraries
+
+In the terminal, type `pip install -r requirements.txt` and press Enter.
+
+(If you know what a venv is, you might want to do this inside of one. But if you don't, don't worry about it.)
+
+## 6. Run the script
 
 In the terminal, type `python download_files.py` and press Enter.
 
-[note to self: either explain `pip install`, or set up a venv and explain that]
-
-## 6. Error messages
+## 6.5. Error messages
 
 If you get an error that says something like `The term "python" is not recognized`, that means you don't have python installed. Go back to step 0 and install python.
 
-If you get an error that says `ModuleNotFoundError: No module named '{module name}'`, like for example `ModuleNotFoundError: No module named 'aiohttp'`, then you need to type `pip install aiohttp` into the terminal and press Enter. Then try to run the script again.
+If you get an error that says `ModuleNotFoundError: No module named '{module name}'`, that means you're missing a library. Did you skip step 5?
 
 All other error messages will be explained in a later section.
 
