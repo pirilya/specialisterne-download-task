@@ -8,7 +8,7 @@ This is a Python script, so in order to run it you need to have Python installed
 
 ## 1. Download `download_files.py` and `config.json`
 
-You can find them right here on this page on github.com by scrolling up a bit, or you can download them from these links: <a href="https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/download_files.py" download=true>`download_files.py`</a> <a href="https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/config.json" download=true>`config.json`</a>
+You can find them right here on this page on github.com by scrolling up a bit, or you can download them from these links: [`download_files.py`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/download_files.py") [`config.json`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/config.json") (follow the link, right click, Save page as...)
 
 ## 2. Open a terminal / command line. 
 
