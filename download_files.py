@@ -56,12 +56,11 @@ def parse_config(filepath):
     return config
 
 # returns void if the download succeeded, throws some kind of error if it didn't
-async def download_file(session, url, download_location):
+async def download_file(session, url, download_location, timeout):
     # turning off ssl checking is maybe risky but some of the URLs don't work if we have it turned on...
-    async with session.request("get", url, ssl=False, timeout = 30) as response: 
-        # in production the timeout should probably be more than 30 seconds but in testing i'm impatient
+    async with session.request("get", url, ssl=False, timeout = timeout) as response: 
         if response.ok and response.content_type in ["application/pdf", "application/octet-stream"]:
-                content = await asyncio.wait_for( response.read(), 30)
+                content = await asyncio.wait_for( response.read(), timeout)
                 with open(download_location, "wb") as f:
                     f.write(content)
                 return
@@ -79,7 +78,7 @@ async def try_multiple_columns_download_file(session, dataframe, line_id, config
     for url in urls_to_try:
         if (type(url) == str): # pandas reads empty cells as floats, we gotta check for that or the script gets confused
             try:
-                await download_file(session, url, download_path)
+                await download_file(session, url, download_path, config["timeout"])
                 return True
             except Exception as e:
                 pass
@@ -115,9 +114,6 @@ async def do_downloads():
             return
 
     print("URL sheet has been read. Starting downloads...")
-
-    # this line is of course just here for testing, so it doesn't take forever to run
-    data = data[:10].copy()
 
     results = await try_download_all(data, config)
 
