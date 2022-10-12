@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Oct 13 15:37:08 2019
-
-@author: hewi
-"""
-
 import pandas as pd
 import os.path
 import glob
@@ -141,6 +134,3 @@ async def do_downloads():
 
     
 asyncio.run(do_downloads())
-'''
-py download_files_fixed.py
-'''
