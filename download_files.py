@@ -101,7 +101,7 @@ async def try_download_all(dataframe, config):
 
 
 def save_download_results(dataframe, results, filename_column, results_filename):
-    results_df = pd.DataFrame(index = data.index)
+    results_df = pd.DataFrame(index = dataframe.index)
     results_df[filename_column] = dataframe[filename_column]
     results_df["pdf_downloaded"] = results
     try:
