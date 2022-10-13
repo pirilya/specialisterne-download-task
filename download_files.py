@@ -119,6 +119,8 @@ async def do_downloads():
     except Exception as e:
         print(e)
         return
+        
+    print("Reading URL sheet...")
 
     data = pd.read_excel(config["url_sheet_path"])
 

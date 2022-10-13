@@ -2,66 +2,56 @@
 
 This script will download pdf reports from links in a spreadsheet, and report the results back in a different spreadsheet, according to the settings the user has specified in the file `config.json`.
 
-# Running the script
+# Install/setup
 
-## 0. Make sure you have Python installed
+## 1. Make sure you have Python installed
 
 This is a Python script, so in order to run it you need to have Python installed. Python is automatically installed on Mac computers but not on Windows. [You can download Python here.](https://www.python.org/downloads/)
 
 If you're on Windows and want to know whether you have Python installed, you can go to Settings -> Apps -> Apps & Features to see a list of all programs installed on your computer. If Python is on that list, you have Python installed.
 
-## 1. Download `download_files.py`, `config.json`, and `requirements.txt`
+## 2. Download the script files
 
-You can find them right here on this page on github.com by scrolling up a bit, or you can download them from these links:
-[`download_files.py`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/download_files.py)
-[`config.json`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/config.json)
-[`requirements.txt`](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/requirements.txt)
-(follow the link, right click, Save page as...)
+The simplest way is to [download the zip from here](https://github.com/pirilya/specialisterne-download-task/zipball/main), and then unzip it.
 
-Make sure to put them all in the same folder!
+## 3. Run the install script
 
-## 2. Edit config.json
+Inside the folder you've just unzipped, there's a folder called "scripts". Go inside it.
+
+If you're on Windows, double click the file `setup-windows.bat` to run it. If you're on Mac or Linux, do the same with `setup-sh.sh`. 
+
+This will open a terminal / command line window. Don't close the window before it's done.
+
+Once it says 
+
+```
+
+Setup complete! Press any key to close this window
+```
+you can close the window.
+
+# Running the program
+
+## 1. Edit config.json
 
 The file config.json is where all your settings are, so if you want to change those, you need to edit config.json. The explanation of how to do this is in the section called [The config file](#the-config-file).
 
-## 3. Open a terminal / command line
+## 2. Run the script
 
-On Windows:
+Inside the scripts folder, click `run-windows.bat` if you're on Windows and `run-sh.sh` if you're on Mac or Linux. Just like during setup, this will open a terminal / command line window, which you shouldn't close until it's done running.
 
-1. Press Windows Key + X
-2. Choose "Windows PowerShell" (may instead be called "Command Prompt" on some systems)
+The text in the terminal is important information about what the script is doing, whether it ran successfully or encountered issues. I suggest you read it.
 
-On Apple (note: I don't have an Apple computer myself so I just copied these instructions from someone else):
+Once it says
+```
 
-1. Click the launchpad icon in the dock
-2. Type "terminal" in the search field
-3. Double-click Terminal
-
-## 4. Tell the terminal what folder to run in
-
-1. Copy the address of the folder that you put `download_files.py`, `config.json` and `requirements.txt` in, back in step 1.
-
-   ![Screenshot of Step 1](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/copy-address.png)
-
-2. In the terminal, type "cd" and then paste the address of the folder
-
-   ![Screenshot of Step 2](https://raw.githubusercontent.com/pirilya/specialisterne-download-task/main/img/cd.png)
-
-## 5. Install libraries
-
-In the terminal, type `pip install -r requirements.txt` and press Enter.
-
-(If you know what a venv is, you might want to do this inside of one. But if you don't, don't worry about it.)
-
-## 6. Run the script
-
-In the terminal, type `python download_files.py` and press Enter.
+The script is done! Press any key to close this window
+```
+you can close the window.
 
 # Error messages
 
 If you get an error that says something like `The term "python" is not recognized`, that means you don't have python installed. Go back to step 0 and install python.
-
-If you get an error that says `ModuleNotFoundError: No module named '{module name}'`, that means you're missing a library. Did you skip step 5?
 
 Other than that, I've tried to make sure that if something goes wrong, the program writes you a reasonably understandable error message that tells you what the something is.
 
