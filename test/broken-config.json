@@ -1,0 +1,9 @@
+{
+    "downloads_location" : "test/downloads/",
+    "sheets_location" : "test/sheets/",
+    "name_of_sheet_with_urls" : "sheet that doesn't exist",
+    "name_of_sheet_with_results" : "output.xlsx",
+    "filename_column" : "filename",
+    "columns_to_check" : ["url1", "url2"],
+    "timeout" : "30"
+}

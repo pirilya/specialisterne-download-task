@@ -63,7 +63,7 @@ def check_columns(df, config):
 # returns void if the download succeeded, throws some kind of error if it didn't
 async def download_file(session, url, download_location, timeout):
     # turning off ssl checking is maybe risky but some of the URLs don't work if we have it turned on...
-    async with session.request("get", url, ssl=False, timeout = timeout) as response: 
+    async with session.get(url, ssl=False, timeout = timeout) as response:
         if response.ok and response.content_type in ["application/pdf", "application/octet-stream"]:
                 content = await asyncio.wait_for( response.read(), timeout)
                 with open(download_location, "wb") as f:
@@ -111,36 +111,36 @@ def save_download_results(dataframe, results, filename_column, results_filename)
         return False
 
 
-async def do_downloads():
+async def do_downloads(config_file_name, output_f):
 
     # if the config file is invalid, we shouldn't execute the rest of the code!
     try:
-        config = parse_config("config.json")
+        config = parse_config(config_file_name)
     except Exception as e:
-        print(e)
+        output_f(e)
         return
-        
-    print("Reading URL sheet...")
+
+    output_f("Reading URL sheet...")
 
     data = pd.read_excel(config["url_sheet_path"])
 
     success, err_msg = check_columns(data, config)
     if not success:
-        print(err_msg)
+        output_f(err_msg)
         return
 
-    print("URL sheet has been read. Starting downloads...")
+    output_f("URL sheet has been read. Starting downloads...")
 
     results = await try_download_all(data, config)
 
-    print("All downloads are done. Saving results...")
+    output_f("All downloads are done. Saving results...")
 
     success = save_download_results(data, results, config["save_as"], config["result_sheet_path"])
     if success:
-        print(f"Results saved in {config['result_sheet_path']}")
+        output_f(f"Results saved in {config['result_sheet_path']}")
     else:
-        print(f"Could not save download results in {config['result_sheet_path']}. This might be because you have the file open.")
+        output_f(f"Could not save download results in {config['result_sheet_path']}. This might be because you have the file open.")
 
 
-    
-asyncio.run(do_downloads())
+if __name__ == "__main__":
+    asyncio.run(do_downloads("config.json", print))
