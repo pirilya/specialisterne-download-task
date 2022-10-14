@@ -152,7 +152,7 @@ If you're reading this section, I assume you're capable of running Python script
 
 If you used the setup script, the venv for this program is named `.venv`.
 
-The normal version of the script, that runs when a user clicks `run-windows.bat` or `run-sh.sh`, is `download_files.py`.
+The normal version of the program, that runs when a user clicks one of the run scripts, is `download_files.py`.
 
 There's also a version that prints time elapsed as it runs, called `download_with_timer.py`. It will by default do the same thing as the regular `download_files.py`, just with a timer, but you can also call it with a flag like so:
 ```bash
