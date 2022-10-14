@@ -83,23 +83,23 @@ async def download_file(session, url, download_location, timeout):
 
 
 # returns true if, after execution, the file is downloaded, and false if it isn't
-async def try_multiple_columns_download_file(session, dataframe, line_id, config, output_f):
+async def try_multiple_columns_download_file(session, dataframe, line_id, config, aggregator):
     filename = dataframe.at[line_id, config["save_as"]]
     download_path = os.path.join(config["download_path"], filename + '.pdf')
     if os.path.exists(download_path):
-        output_f(True)
+        aggregator(True)
         return True
     urls_to_try = [ dataframe.at[line_id, column_name] for column_name in config["columns_to_check"] ]
     for url in urls_to_try:
         if (type(url) == str): # pandas reads empty cells as floats, we gotta check for that or the script gets confused
             try:
                 await download_file(session, url, download_path, config["timeout"])
-                output_f(True)
+                aggregator(True)
                 return True
             except Exception as e:
                 pass
                 #print("Error of type:", type(e), "Error content:", e)
-    output_f(False)
+    aggregator(False)
     return False
 
 
