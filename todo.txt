@@ -1,4 +1,1 @@
-also we need to fix the thing where "can not load response cookies" etc 
-prints on the screen! make it quiet!
-
 also finishing the test dummies

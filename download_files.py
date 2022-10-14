@@ -7,6 +7,11 @@ import aiohttp
 
 import json
 
+# If we don't have these two lines, the command line 
+# prints an error message when a site sends malformed cookies
+import logging
+logging.getLogger("aiohttp").setLevel("ERROR")
+
 def parse_config(filepath):
     try:
         with open(filepath, "r") as f:
