@@ -145,3 +145,15 @@ Note that the column names are wrapped in square brackets []. This is important!
 Sometimes a file takes a long time to download. This setting tells the program how many seconds it should wait for a download before giving up on it.
 
 If you set this to a high number, the program will probably take a longer time to run.
+
+# For developers
+
+If you're reading this section, I assume you're capable of running Python scripts.
+
+If you used the setup script, the venv for this program is named `.venv`.
+
+You can test the script by running `test.py`, and get time benchmarks by running `download_with_timer.py`. This last one will by default do the same thing as the regular download_files.py, just with a timer, but you can also call it with a flag like so:
+```
+python download_with_timer.py --from-empty
+```
+if you want it to first empty the download folder, so you can get benchmarks for how long it takes when you start from scratch.

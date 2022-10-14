@@ -140,7 +140,7 @@ async def do_downloads(config_file_name, output_f):
         output_f(f"Results saved in {config['result_sheet_path']}")
     else:
         output_f(f"Could not save download results in {config['result_sheet_path']}. This might be because you have the file open.")
-
+    return
 
 if __name__ == "__main__":
     asyncio.run(do_downloads("config.json", print))

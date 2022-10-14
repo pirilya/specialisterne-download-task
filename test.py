@@ -50,13 +50,15 @@ async def test_download_file():
     session = test_dummies.dummy_session()
     await download_files.download_file(session, "example.com/example.pdf", "test/downloads/example.pdf", 5)
 
+def empty_folder (folderpath):
+    for f in os.listdir(folderpath):
+        os.remove(os.path.join(folderpath, f))
 
 async def test_full ():
 
     # empty downloads folder
     download_folder = os.path.join("test", "downloads")
-    for f in os.listdir(download_folder):
-        os.remove(os.path.join(download_folder, f))
+    empty_folder(download_folder)
 
     await download_files.do_downloads("test/working-config.json", test_dummies.dont_print)
 
@@ -70,7 +72,7 @@ async def test_full ():
 async def run_all_tests ():
     test_parse_config()
     test_check_columns()
-    await test_download_file()
+    #await test_download_file()
     await test_full()
 
 asyncio.run(run_all_tests())
