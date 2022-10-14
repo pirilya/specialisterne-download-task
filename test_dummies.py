@@ -1,30 +1,16 @@
-class dummy_response:
-    def __init__(self, is_ok, is_pdf, will_timeout):
-        self.ok = is_ok
-        self.content_type = "application/pdf" if is_pdf else "text/html"
-        self.will_timeout = will_timeout
-    async def read():
-        if self.will_timeout:
-            time.sleep(1000)
-        return "this is definitely pdf data"
-    def __await__(self, *args, **kwargs):
-        print("he", args, kwargs)
-        return iter([])
-
-class dummy_session:
-    def __init__(self):
-        pass
-    class get:
-        def __init__(self, url, **kwargs):
-            self.url = url
-        def __aenter__(self, **kwargs):
-            print("blah", self, kwargs)
-            is_ok = "non-resolving" in self.url
-            is_pdf = "pdf" in self.url
-            will_timeout = "timeout" in self.url
-            return dummy_response(is_ok, is_pdf, will_timeout)
-        def __aexit__(self, *args, **kwargs):
-            return dummy_response(True, True, True)
+import aiohttp.test_utils, aiohttp.web
+import time
 
 def dont_print (s):
     return
+
+async def make_server():
+    async def respond (req):
+        return aiohttp.web.Response(content_type = "application/pdf", body=b"%PDF-1.5")
+    async def respond_text (req):
+        return aiohttp.web.Response(content_type = "application/pdf", body=b"not a pdf file")
+    app = aiohttp.web.Application()
+    app.router.add_get("/works", respond)
+    app.router.add_get("/not-pdf", respond_text)
+    server = aiohttp.test_utils.TestServer(app)
+    return server

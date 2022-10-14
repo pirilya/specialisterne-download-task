@@ -1,1 +1,4 @@
-also finishing the test dummies
+hmmm, should probably have something to let the user just 
+update the output sheet, without retrying all the downloads
+
+take a screenshot or a note or something of the full runtime

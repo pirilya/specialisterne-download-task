@@ -4,6 +4,7 @@ import time
 
 import download_files
 import test_dummies
+import aiohttp.test_utils
 
 def test_parse_config ():
     # I cannot be bothered to test all the myriad ways a config file can be broken
@@ -47,8 +48,33 @@ def test_check_columns():
 
 
 async def test_download_file():
-    session = test_dummies.dummy_session()
-    await download_files.download_file(session, "example.com/example.pdf", "test/downloads/example.pdf", 5)
+    server = await test_dummies.make_server()
+    async with aiohttp.test_utils.TestClient(server) as session:
+        expected = {"/works" : True, "/doesnt-exist" : False, "/not-pdf" : False}
+        for key in expected:
+            try:
+                download_location = "test/downloads/something.pdf"
+                await download_files.download_file(session, key, download_location, 5)
+                success = os.path.exists(download_location)
+            except Exception as e:
+                success = False
+            assert success == expected[key]
+
+async def test_try_multiple_download():
+    data = download_files.pd.DataFrame(data={
+        'col1' : ["/works","/doesnt-exist", "/not-pdf"], 
+        'col2' : ["","/works", ""],
+        'name' : ["test1", "test2", "test3"]
+        })
+    expected = [True, True, False]
+    config = {"save_as" : "name", "download_path" : "test/downloads", "columns_to_check" : ["col1", "col2"]}
+    server = await test_dummies.make_server()
+    def aggregator (thing):
+        pass
+    async with aiohttp.test_utils.TestClient(server) as session:
+        for i in data.index:
+            success = await download_files.try_multiple_columns_download_file(session, data, i, config, aggregator)
+            print(i, success)
 
 def empty_folder (folderpath):
     for f in os.listdir(folderpath):
@@ -72,7 +98,8 @@ async def test_full ():
 async def run_all_tests ():
     test_parse_config()
     test_check_columns()
-    #await test_download_file()
+    await test_download_file()
+    await test_try_multiple_download()
     await test_full()
 
 if __name__ == "__main__":
