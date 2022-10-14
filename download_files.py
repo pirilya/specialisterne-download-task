@@ -10,7 +10,10 @@ import json
 def parse_config(filepath):
     try:
         with open(filepath, "r") as f:
-            raw_config = json.load(f)
+            json_str = f.read()
+            # the user might input a filepath with backslashes, which the json parser chokes on
+            json_str = json_str.replace("\\", "/")
+            raw_config = json.loads(json_str)
     except FileNotFoundError:
         raise Exception(f"Cannot find a file named {filepath}")
     except json.decoder.JSONDecodeError as e:

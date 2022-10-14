@@ -1,0 +1,6 @@
+also we need to fix the thing where "can not load response cookies" etc 
+prints on the screen! make it quiet!
+
+also also. suspect the timeout is currently global, 
+it's suspicious that that part takes basically exactly 30+30 seconds to run. 
+should be individual timeout per download.

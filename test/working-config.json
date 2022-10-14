@@ -1,6 +1,6 @@
 {
     "downloads_location" : "test/downloads",
-    "sheets_location" : "test/sheets/",
+    "sheets_location" : "test\sheets/",
     "name_of_sheet_with_urls" : "urls",
     "name_of_sheet_with_results" : "output.xlsx",
     "filename_column" : "filename",
