@@ -66,13 +66,13 @@ def check_columns(df, config):
 # returns void if the download succeeded, throws some kind of error if it didn't
 async def download_file(session, url, download_location, timeout):
     # turning off ssl checking is maybe risky but some of the URLs don't work if we have it turned on...
-    async with session.get(url, ssl=False, timeout = timeout) as response:
+    async with session.get(url, ssl=False) as response:
         if response.ok and response.content_type in ["application/pdf", "application/octet-stream"]:
-                content = await asyncio.wait_for( response.read(), timeout)
-                if content[:5] == "%PDF-":
-                    with open(download_location, "wb") as f:
-                        f.write(content)
-                    return
+            content = await asyncio.wait_for( response.read(), timeout )
+            if content[:5] == b"%PDF-":
+                with open(download_location, "wb") as f:
+                    f.write(content)
+                return
     # the control flow is simpler if we're guaranteed to always throw an exception if the download fails
     raise Exception("Download failed")
 
@@ -99,7 +99,8 @@ async def try_download_all(dataframe, config):
     # setting the same user-agent that my actual browser has, so we don't get caught by bot detection
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"}
     
-    async with aiohttp.ClientSession( headers = headers ) as session:
+    timeout = aiohttp.ClientTimeout(total=None, sock_connect=config["timeout"], sock_read=config["timeout"])
+    async with aiohttp.ClientSession( headers = headers, timeout = timeout ) as session:
         function_calls = [try_multiple_columns_download_file(session, dataframe, j, config) for j in dataframe.index]
         return await asyncio.gather(*function_calls)
 
@@ -127,6 +128,7 @@ async def do_downloads(config_file_name, output_f):
     output_f("Reading URL sheet...")
 
     data = pd.read_excel(config["url_sheet_path"])
+    data = data[:100].copy()
 
     success, err_msg = check_columns(data, config)
     if not success:
