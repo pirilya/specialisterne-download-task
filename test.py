@@ -75,4 +75,5 @@ async def run_all_tests ():
     #await test_download_file()
     await test_full()
 
-asyncio.run(run_all_tests())
+if __name__ == "__main__":
+    asyncio.run(run_all_tests())
