@@ -78,30 +78,33 @@ async def download_file(session, url, download_location, timeout):
 
 
 # returns true if, after execution, the file is downloaded, and false if it isn't
-async def try_multiple_columns_download_file(session, dataframe, line_id, config):
+async def try_multiple_columns_download_file(session, dataframe, line_id, config, output_f):
     filename = dataframe.at[line_id, config["save_as"]]
     download_path = os.path.join(config["download_path"], filename + '.pdf')
     if os.path.exists(download_path):
+        output_f(True)
         return True
     urls_to_try = [ dataframe.at[line_id, column_name] for column_name in config["columns_to_check"] ]
     for url in urls_to_try:
         if (type(url) == str): # pandas reads empty cells as floats, we gotta check for that or the script gets confused
             try:
                 await download_file(session, url, download_path, config["timeout"])
+                output_f(True)
                 return True
             except Exception as e:
                 pass
                 #print("Error of type:", type(e), "Error content:", e)
+    output_f(False)
     return False
 
 
-async def try_download_all(dataframe, config):
+async def try_download_all(dataframe, config, output_f):
     # setting the same user-agent that my actual browser has, so we don't get caught by bot detection
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"}
     
     timeout = aiohttp.ClientTimeout(total=None, sock_connect=config["timeout"], sock_read=config["timeout"])
     async with aiohttp.ClientSession( headers = headers, timeout = timeout ) as session:
-        function_calls = [try_multiple_columns_download_file(session, dataframe, j, config) for j in dataframe.index]
+        function_calls = [try_multiple_columns_download_file(session, dataframe, j, config, output_f) for j in dataframe.index]
         return await asyncio.gather(*function_calls)
 
 
@@ -115,6 +118,22 @@ def save_download_results(dataframe, results, filename_column, results_filename)
     except PermissionError:
         return False
 
+class progress_bar:
+    def __init__(self, total):
+        self.total = total
+        self.finished = self.successes = self.fails = 0
+    def __print_self(self, delete):
+        endchar = "\r" if delete else "\n"
+        print(f"{self.finished:>10} / {self.total} ({self.successes} successes, {self.fails} failures)", end=endchar)
+    def add(self, is_success):
+        if is_success:
+            self.successes += 1
+        else:
+            self.fails += 1
+        self.finished += 1
+        self.__print_self(True)
+    def finish(self):
+        self.__print_self(False)
 
 async def do_downloads(config_file_name, output_f):
 
@@ -128,7 +147,7 @@ async def do_downloads(config_file_name, output_f):
     output_f("Reading URL sheet...")
 
     data = pd.read_excel(config["url_sheet_path"])
-    data = data[:100].copy()
+    #data = data[:100].copy()
 
     success, err_msg = check_columns(data, config)
     if not success:
@@ -137,7 +156,9 @@ async def do_downloads(config_file_name, output_f):
 
     output_f("URL sheet has been read. Starting downloads...")
 
-    results = await try_download_all(data, config)
+    progress = progress_bar(len(data.index))
+    results = await try_download_all(data, config, progress.add)
+    progress.finish()
 
     output_f("All downloads are done. Saving results...")
 
