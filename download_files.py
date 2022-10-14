@@ -66,9 +66,10 @@ async def download_file(session, url, download_location, timeout):
     async with session.get(url, ssl=False, timeout = timeout) as response:
         if response.ok and response.content_type in ["application/pdf", "application/octet-stream"]:
                 content = await asyncio.wait_for( response.read(), timeout)
-                with open(download_location, "wb") as f:
-                    f.write(content)
-                return
+                if content[:5] == "%PDF-":
+                    with open(download_location, "wb") as f:
+                        f.write(content)
+                    return
     # the control flow is simpler if we're guaranteed to always throw an exception if the download fails
     raise Exception("Download failed")
 
