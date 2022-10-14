@@ -49,14 +49,6 @@ The script is done! Press any key to close this window
 ```
 you can close the window.
 
-# Error messages
-
-If you get an error that says something like `The term "python" is not recognized`, that means you don't have python installed. Go back to step 0 and install python.
-
-Other than that, I've tried to make sure that if something goes wrong, the program writes you a reasonably understandable error message that tells you what the something is.
-
-If you get some other kind of error message, that means things went wrong in a way I didn't predict was possible. I suggest you try running the program again, and if the issue keeps happening, download a fresh copy of config.json and start over on editing it to have the settings you want.
-
 # The config file
 
 In the same folder as `download_files.py`, you have a file named `config.json`. This file contains all your options and configuration. To change things about how the script runs, you change the config file. (If you don't know how to open a .json file, Notepad works fine.)
