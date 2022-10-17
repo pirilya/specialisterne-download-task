@@ -67,22 +67,23 @@ async def test_try_multiple_download():
         'name' : ["test1", "test2", "test3"]
         })
     expected = [True, True, False]
-    config = {"save_as" : "name", "download_path" : "test/downloads", "columns_to_check" : ["col1", "col2"]}
+    config = {"save_as" : "name", "download_path" : "test/downloads", "columns_to_check" : ["col1", "col2"], "timeout" : 30}
     server = await test_dummies.make_server()
     def aggregator (thing):
         pass
     async with aiohttp.test_utils.TestClient(server) as session:
         for i in data.index:
             success = await download_files.try_multiple_columns_download_file(session, data, i, config, aggregator)
-            print(i, success)
+            assert success == expected[i]
 
 def empty_folder (folderpath):
     for f in os.listdir(folderpath):
         os.remove(os.path.join(folderpath, f))
 
+# Note: test_full downloads an actual pdf from the actual internet. 
+# If it starts failing, it may just be that said pdf has been deleted by its owner.
 async def test_full ():
-
-    # empty downloads folder
+    # let's first test it on an empty downloads folder
     download_folder = os.path.join("test", "downloads")
     empty_folder(download_folder)
 
@@ -96,11 +97,15 @@ async def test_full ():
     assert os.listdir(download_folder) == ["working-pdf-1.pdf", "working-pdf-2.pdf"]
 
 async def run_all_tests ():
-    test_parse_config()
-    test_check_columns()
-    await test_download_file()
-    await test_try_multiple_download()
-    await test_full()
+    try:
+        test_parse_config()
+        test_check_columns()
+        await test_download_file()
+        await test_try_multiple_download()
+        await test_full()
+    finally:
+        # after testing, let's clean up after ourselves.
+        empty_folder(os.path.join("test", "downloads"))
 
 if __name__ == "__main__":
     asyncio.run(run_all_tests())

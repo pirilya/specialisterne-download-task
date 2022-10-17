@@ -1,7 +1,7 @@
 import aiohttp.test_utils, aiohttp.web
 import time
 
-def dont_print (s):
+def dont_print (s, **kwargs):
     return
 
 async def make_server():

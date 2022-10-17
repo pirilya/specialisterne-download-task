@@ -124,12 +124,13 @@ def save_download_results(dataframe, results, filename_column, results_filename)
         return False
 
 class progress_bar:
-    def __init__(self, total):
+    def __init__(self, total, output_f):
         self.total = total
         self.finished = self.successes = self.fails = 0
+        self.output_f = output_f
     def __print_self(self, delete):
         endchar = "\r" if delete else "\n"
-        print(f"{self.finished:>10} / {self.total} ({self.successes} successes, {self.fails} failures)", end=endchar)
+        self.output_f(f"{self.finished:>10} / {self.total} ({self.successes} successes, {self.fails} failures)", end=endchar)
     def add(self, is_success):
         if is_success:
             self.successes += 1
@@ -161,7 +162,7 @@ async def do_downloads(config_file_name, output_f):
 
     output_f("URL sheet has been read. Starting downloads...")
 
-    progress = progress_bar(len(data.index))
+    progress = progress_bar(len(data.index), output_f)
     results = await try_download_all(data, config, progress.add)
     progress.finish()
 

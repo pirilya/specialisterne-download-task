@@ -1,4 +1,13 @@
 hmmm, should probably have something to let the user just 
 update the output sheet, without retrying all the downloads
 
-take a screenshot or a note or something of the full runtime
+note to self: full scale test results:
+(.venv) PS C:\Users\KOM\Documents\download-task> py download_with_timer.py --from-empty
+Reading URL sheet...                               Time on this step: 0.0 seconds
+URL sheet has been read. Starting downloads...     Time on this step: 5.62652850151062 seconds
+     21057 / 21057 (7342 successes, 13715 failures)
+All downloads are done. Saving results...          Time on this step: 2157.554426431656 seconds
+Results saved in sheets/Results_2017_2020.xlsx     Time on this step: 1.450085163116455 seconds
+                                                   Total time: 2164.631040096283 seconds.
+
+that corresponds to 36 minutes                                                   
