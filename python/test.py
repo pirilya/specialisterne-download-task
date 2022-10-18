@@ -11,16 +11,16 @@ def test_parse_config ():
     # So I'm just picking one of the ways, and that'll have to do.
     error = None
     try:
-        download_files.parse_config("test/broken-config.json")
+        download_files.parse_config("python/test/broken-config.json")
     except Exception as e:
         error = e
     assert error != None
 
-    config = download_files.parse_config("test/working-config.json")
+    config = download_files.parse_config("python/test/working-config.json")
     expected = {
-        "download_path" : "test/downloads",
-        "url_sheet_path" : "test/sheets/urls.xlsx",
-        "result_sheet_path" : "test/sheets/output.xlsx",
+        "download_path" : "python/test/downloads",
+        "url_sheet_path" : "python/test/sheets/urls.xlsx",
+        "result_sheet_path" : "python/test/sheets/output.xlsx",
         "save_as" : "filename",
         "columns_to_check" : ["url1", "url2"],
         "timeout" : 30
@@ -53,7 +53,7 @@ async def test_download_file():
         expected = {"/works" : True, "/doesnt-exist" : False, "/not-pdf" : False}
         for key in expected:
             try:
-                download_location = "test/downloads/something.pdf"
+                download_location = "python/test/downloads/something.pdf"
                 await download_files.download_file(session, key, download_location, 5)
                 success = os.path.exists(download_location)
             except Exception as e:
@@ -67,7 +67,7 @@ async def test_try_multiple_download():
         'name' : ["test1", "test2", "test3"]
         })
     expected = [True, True, False]
-    config = {"save_as" : "name", "download_path" : "test/downloads", "columns_to_check" : ["col1", "col2"], "timeout" : 30}
+    config = {"save_as" : "name", "download_path" : "python/test/downloads", "columns_to_check" : ["col1", "col2"], "timeout" : 30}
     server = await test_dummies.make_server()
     def aggregator (thing):
         pass
@@ -84,15 +84,15 @@ def empty_folder (folderpath):
 # If it starts failing, it may just be that said pdf has been deleted by its owner.
 async def test_full ():
     # let's first test it on an empty downloads folder
-    download_folder = os.path.join("test", "downloads")
+    download_folder = "python/test/downloads"
     empty_folder(download_folder)
 
-    await download_files.do_downloads("test/working-config.json", test_dummies.dont_print)
+    await download_files.do_downloads("python/test/working-config.json", test_dummies.dont_print)
 
     assert os.listdir(download_folder) == ["working-pdf-1.pdf", "working-pdf-2.pdf"]
 
     # next let's try to run it on a non-empty downloads folder
-    await download_files.do_downloads("test/working-config.json", test_dummies.dont_print)
+    await download_files.do_downloads("python/test/working-config.json", test_dummies.dont_print)
 
     assert os.listdir(download_folder) == ["working-pdf-1.pdf", "working-pdf-2.pdf"]
 
@@ -105,7 +105,7 @@ async def run_all_tests ():
         await test_full()
     finally:
         # after testing, let's clean up after ourselves.
-        empty_folder(os.path.join("test", "downloads"))
+        empty_folder("python/test/downloads")
 
 if __name__ == "__main__":
     asyncio.run(run_all_tests())
