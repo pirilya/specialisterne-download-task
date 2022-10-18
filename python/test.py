@@ -2,6 +2,8 @@ import asyncio
 import os
 import time
 
+import download_files_core
+import config_functions
 import download_files
 import test_dummies
 import aiohttp.test_utils
@@ -11,12 +13,12 @@ def test_parse_config ():
     # So I'm just picking one of the ways, and that'll have to do.
     error = None
     try:
-        download_files.parse_config("python/test/broken-config.json")
+        config_functions.parse_config("python/test/broken-config.json")
     except Exception as e:
         error = e
     assert error != None
 
-    config = download_files.parse_config("python/test/working-config.json")
+    config = config_functions.parse_config("python/test/working-config.json")
     expected = {
         "download_path" : "python/test/downloads",
         "url_sheet_path" : "python/test/sheets/urls.xlsx",
@@ -39,11 +41,11 @@ def test_check_columns():
     data = download_files.pd.DataFrame(data={'col1' : [1,2], 'col2' : [3,4]})
 
     failing_config = {"save_as" : "col1", "columns_to_check" : ["nonexistant column name"]}
-    success, _ = download_files.check_columns(data, failing_config)
+    success, _ = config_functions.check_columns(data, failing_config)
     assert not success
 
     passing_config = {"save_as" : "col1", "columns_to_check" : ["col2"]}
-    success, _ = download_files.check_columns(data, passing_config)
+    success, _ = config_functions.check_columns(data, passing_config)
     assert success
 
 
@@ -54,7 +56,7 @@ async def test_download_file():
         for key in expected:
             try:
                 download_location = "python/test/downloads/something.pdf"
-                await download_files.download_file(session, key, download_location, 5)
+                await download_files_core.download_file(session, key, download_location, 5)
                 success = os.path.exists(download_location)
             except Exception as e:
                 success = False
@@ -73,7 +75,7 @@ async def test_try_multiple_download():
         pass
     async with aiohttp.test_utils.TestClient(server) as session:
         for i in data.index:
-            success = await download_files.try_multiple_columns_download_file(session, data, i, config, aggregator)
+            success = await download_files_core.try_multiple_columns_download_file(session, data, i, config, aggregator)
             assert success == expected[i]
 
 def empty_folder (folderpath):
