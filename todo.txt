@@ -1,6 +1,3 @@
-hmmm, should probably have something to let the user just 
-update the output sheet, without retrying all the downloads
-
 note to self: full scale test results:
 (.venv) PS C:\Users\KOM\Documents\download-task> py download_with_timer.py --from-empty
 Reading URL sheet...                               Time on this step: 0.0 seconds
