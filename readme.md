@@ -49,6 +49,12 @@ The script is done! Press any key to close this window
 ```
 you can close the window.
 
+## If you just want to update the results sheet
+
+Maybe you don't want to attempt all the downloads! Maybe you just want to update the results spreadsheet to match what's in the download folder, without actually changing what's in the downloads folder! 
+
+If that's the case, instead of clicking `run-windows.bat` or `run-sh.sh`, you can instead click `update-sheet-windows.bat` or `update-sheet-sh.sh`.
+
 # The config file
 
 In the same folder as `download_files.py`, you have a file named `config.json`. This file contains all your options and configuration. To change things about how the script runs, you change the config file. (If you don't know how to open a .json file, Notepad works fine.)
@@ -150,12 +156,10 @@ The python files are all in the `python/` folder. You have to run them from the 
 (.venv) PS C:\Users\KOM\Documents\download-task> py python/download_files.py
 ```
 
-The normal version of the program, that runs when a user clicks one of the run scripts, is `download_files.py`.
-
-There's also a version that prints time elapsed as it runs, called `download_with_timer.py`. It will by default do the same thing as the regular `download_files.py`, just with a timer, but you can also call it with a flag like so:
+The normal version of the program, that runs when a user clicks one of the run scripts, is `download_files.py`. The version that skips the download step, that runs when a user clicks one of the update-sheet scripts, is also `download_files.py`, but called with the `--no-download` flag. Like so:
 ```
-python python/download_with_timer.py --from-empty
+python python/download_files.py --no-download
 ```
-If you use this flag, it will first empty the download folder, so you can get benchmarks for how long it takes when you start from scratch.
+There's also a version that prints time elapsed as it runs, called `download_with_timer.py`. It will by default do the same thing as the regular `download_files.py`, just with a timer, but you can also call it with the `--from-empty` flag. With this flag, it will empty the download folder before running, so you can get benchmarks for how long it takes when you start from scratch.
 
 You can test the script by running `test.py`.

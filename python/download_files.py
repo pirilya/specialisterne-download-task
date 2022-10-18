@@ -2,6 +2,7 @@ import asyncio
 import pandas as pd
 import os.path
 import glob
+import sys
 
 import download_files_core as downloader
 import config_functions
@@ -34,7 +35,11 @@ class progress_bar:
     def finish(self):
         self.__print_self(False)
 
-async def do_downloads(config_file_name, output_f):
+
+async def do_downloads(config_file_name, output_f, milestone_f = lambda: None):
+
+    # read flags
+    skip_downloads = "--no-download" in sys.argv
 
     # if the config file is invalid, we shouldn't execute the rest of the code!
     try:
@@ -46,26 +51,39 @@ async def do_downloads(config_file_name, output_f):
     output_f("Reading URL sheet...")
 
     data = pd.read_excel(config["url_sheet_path"])
-    #data = data[:100].copy()
+    data = data[:100].copy()
 
     success, err_msg = config_functions.check_columns(data, config)
     if not success:
         output_f(err_msg)
         return
 
-    output_f("URL sheet has been read. Starting downloads...")
+    output_f("URL sheet has been read.")
+    milestone_f()
 
-    progress = progress_bar(len(data.index), output_f)
-    results = await downloader.try_download_all(data, config, progress.add)
-    progress.finish()
+    if not skip_downloads:
+        output_f("Starting downloads...")
 
-    output_f("All downloads are done. Saving results...")
+        progress = progress_bar(len(data.index), output_f)
+        results = await downloader.try_download_all(data, config, progress.add)
+        progress.finish()
+
+        output_f("All downloads are done.")
+        milestone_f()
+    else:
+        files = glob.glob(os.path.join(config["download_path"], "*.pdf")) 
+        files = set(os.path.basename(f)[:-4] for f in files)
+        results = [(filename in files) for filename in data[config["save_as"]]]
+
+
+    output_f("Saving results...")
 
     success = save_download_results(data, results, config["save_as"], config["result_sheet_path"])
     if success:
         output_f(f"Results saved in {config['result_sheet_path']}")
     else:
         output_f(f"Could not save download results in {config['result_sheet_path']}. This might be because you have the file open.")
+    milestone_f()
     return
 
 if __name__ == "__main__":
