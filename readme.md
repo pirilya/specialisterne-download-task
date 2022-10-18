@@ -144,11 +144,17 @@ If you're reading this section, I assume you're capable of running Python script
 
 If you used the setup script, the venv for this program is named `.venv`.
 
+The python files are all in the `python/` folder. You have to run them from the root folder, since the path to config.json is hardcoded. So e.g.
+
+```
+(.venv) PS C:\Users\KOM\Documents\download-task> py python/download_files.py
+```
+
 The normal version of the program, that runs when a user clicks one of the run scripts, is `download_files.py`.
 
 There's also a version that prints time elapsed as it runs, called `download_with_timer.py`. It will by default do the same thing as the regular `download_files.py`, just with a timer, but you can also call it with a flag like so:
-```bash
-python download_with_timer.py --from-empty
+```
+python python/download_with_timer.py --from-empty
 ```
 If you use this flag, it will first empty the download folder, so you can get benchmarks for how long it takes when you start from scratch.
 
