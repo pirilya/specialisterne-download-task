@@ -22,20 +22,26 @@ def already_downloaded(download_path):
     files = glob.glob(os.path.join(config["download_path"], "*.pdf")) 
     return set(os.path.basename(f)[:-4] for f in files)
 
-async def do_downloads(config_file_name, output_f):
+def empty_folder (folderpath):
+    for f in os.listdir(folderpath):
+        os.remove(os.path.join(folderpath, f))
+
+async def do_downloads(config_file_name, ui):
     # read flags
     skip_downloads = "--no-download" in sys.argv
     has_timer = "--timer" in sys.argv
     from_empty = "--from-empty" in sys.argv
     only_first_hundred = "--first-hundred" in sys.argv
 
-    ui = interface.messages(output_f, has_timer = has_timer)
     # if the config file is invalid, we shouldn't execute the rest of the code!
     try:
-        config = config_functions.parse_config(config_file_name)
+        raw_config = config_functions.read_config(config_file_name)
+        ui.raw_config = raw_config
+        config = config_functions.parse_config(raw_config)
     except Exception as e:
-        output_f(e)
+        ui.communicate_error(str(e))
         return
+    ui.raw_config = {}
     ui.config = config
 
     if from_empty:
@@ -50,7 +56,7 @@ async def do_downloads(config_file_name, output_f):
 
     success, err_msg = config_functions.check_columns(data, config)
     if not success:
-        output_f(err_msg)
+        ui.communicate_error(err_msg)
         return
 
     ui.communicate_progress("end_read")
@@ -60,7 +66,7 @@ async def do_downloads(config_file_name, output_f):
         results = await downloader.try_download_all(data, config, ui.progress_bar.add)
         ui.communicate_progress("end_download")
     else:
-        files = already_downlaoded(config["download_path"])
+        files = already_downloaded(config["download_path"])
         results = [(filename in files) for filename in data[config["save_as"]]]
 
     ui.communicate_progress("start_save")
@@ -69,8 +75,10 @@ async def do_downloads(config_file_name, output_f):
     if success:
         ui.communicate_progress("end_save")
     else:
-        output_f(f"Could not save download results in {config['result_sheet_path']}. This might be because you have the file open.")
+        ui.communicate_error("save_failed")
     ui.finish()
 
 if __name__ == "__main__":
-    asyncio.run(do_downloads("config.json", print))
+    has_timer = "--timer" in sys.argv
+    ui = interface.messages(has_timer = has_timer)
+    asyncio.run(do_downloads("config.json", ui))

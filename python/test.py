@@ -78,16 +78,12 @@ async def test_try_multiple_download():
             success = await download_files_core.try_multiple_columns_download_file(session, data, i, config, aggregator)
             assert success == expected[i]
 
-def empty_folder (folderpath):
-    for f in os.listdir(folderpath):
-        os.remove(os.path.join(folderpath, f))
-
 # Note: test_full downloads an actual pdf from the actual internet. 
 # If it starts failing, it may just be that said pdf has been deleted by its owner.
 async def test_full ():
     # let's first test it on an empty downloads folder
     download_folder = "python/test/downloads"
-    empty_folder(download_folder)
+    download_files.empty_folder(download_folder)
 
     await download_files.do_downloads("python/test/working-config.json", test_dummies.dont_print)
 
