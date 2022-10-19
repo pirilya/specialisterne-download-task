@@ -26,13 +26,7 @@ def empty_folder (folderpath):
     for f in os.listdir(folderpath):
         os.remove(os.path.join(folderpath, f))
 
-async def do_downloads(config_file_name, ui):
-    # read flags
-    skip_downloads = "--no-download" in sys.argv
-    has_timer = "--timer" in sys.argv
-    from_empty = "--from-empty" in sys.argv
-    only_first_hundred = "--first-hundred" in sys.argv
-
+async def do_downloads(config_file_name, ui, options):
     # if the config file is invalid, we shouldn't execute the rest of the code!
     try:
         raw_config = config_functions.read_config(config_file_name)
@@ -43,15 +37,15 @@ async def do_downloads(config_file_name, ui):
         return
     ui.raw_config = {}
     ui.config = config
-
-    if from_empty:
+    
+    if options.from_empty:
         empty_folder(config["download_path"])
 
     ui.communicate_progress("start_read")
 
     data = pd.read_excel(config["url_sheet_path"])
-    if only_first_hundred:
-        data = data[:100].copy()
+    if options.only_first_hundred:
+        data = data[:20].copy()
     ui.data = data
 
     success, err_msg = config_functions.check_columns(data, config)
@@ -61,7 +55,7 @@ async def do_downloads(config_file_name, ui):
 
     ui.communicate_progress("end_read")
 
-    if not skip_downloads:
+    if not options.skip_downloads:
         ui.communicate_progress("start_download")
         results = await downloader.try_download_all(data, config, ui.progress_bar.add)
         ui.communicate_progress("end_download")
@@ -78,7 +72,14 @@ async def do_downloads(config_file_name, ui):
         ui.communicate_error("save_failed")
     ui.finish()
 
+class flags:
+    def __init__(self):
+        self.skip_downloads = "--no-download" in sys.argv
+        self.has_timer = "--timer" in sys.argv
+        self.from_empty = "--from-empty" in sys.argv
+        self.only_first_hundred = "--first-hundred" in sys.argv
+
 if __name__ == "__main__":
-    has_timer = "--timer" in sys.argv
-    ui = interface.messages(has_timer = has_timer)
-    asyncio.run(do_downloads("config.json", ui))
+    flags = flags()
+    ui = interface.messages(has_timer = flags.has_timer)
+    asyncio.run(do_downloads("config.json", ui, flags))

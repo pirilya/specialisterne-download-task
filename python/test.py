@@ -87,12 +87,12 @@ async def test_full ():
     download_folder = "python/test/downloads"
     download_files.empty_folder(download_folder)
 
-    await download_files.do_downloads("python/test/working-config.json", test_dummies.ui())
+    await download_files.do_downloads("python/test/working-config.json", test_dummies.ui(), test_dummies.flags())
 
     assert os.listdir(download_folder) == ["working-pdf-1.pdf", "working-pdf-2.pdf"]
 
     # next let's try to run it on a non-empty downloads folder
-    await download_files.do_downloads("python/test/working-config.json", test_dummies.ui())
+    await download_files.do_downloads("python/test/working-config.json", test_dummies.ui(), test_dummies.flags())
 
     assert os.listdir(download_folder) == ["working-pdf-1.pdf", "working-pdf-2.pdf"]
 

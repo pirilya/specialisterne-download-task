@@ -24,3 +24,10 @@ class ui:
         pass
     def finish(self):
         pass
+
+class flags:
+    def __init__(self):
+        self.skip_downloads = False
+        self.has_timer = False
+        self.from_empty = False
+        self.only_first_hundred = False
