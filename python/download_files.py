@@ -42,7 +42,6 @@ async def do_downloads(config_file_name, ui, options):
     data = pd.read_excel(config.url_sheet_path)
     if options.only_first_hundred:
         data = data[:100].copy()
-    ui.data = data
 
     config.check_columns(data)
     if config.error != None:
@@ -50,6 +49,8 @@ async def do_downloads(config_file_name, ui, options):
         return
 
     ui.communicate_progress("end_read", config)
+
+    ui.data_length = len(data.index)
 
     if not options.skip_downloads:
         ui.communicate_progress("start_download", config)

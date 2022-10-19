@@ -51,6 +51,7 @@ class messages:
     }
     def __init__(self, has_timer = False):
         self.timer = stopwatch() if has_timer else None
+        self.data_length = 0
     def output(self, msg, **kwargs):
         formatted = msg.format(**kwargs)
         print(formatted)
@@ -64,7 +65,7 @@ class messages:
         self.output(self.progress_msg[msg], **config.__dict__)
 
         if msg == "start_download":
-            self.progress_bar = progress_bar(len(self.data.index), print)
+            self.progress_bar = progress_bar(self.data_length, print)
         if msg[:4] == "end_" and self.timer != None:
             self.timer.step()
     def finish(self):
