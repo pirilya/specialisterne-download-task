@@ -29,15 +29,17 @@ def empty_folder (folderpath):
 async def do_downloads(config_file_name, ui, options):
 
     config = config_functions.config(config_file_name)
+
+    ui.attach_config(config)
     
     if config.error != None:
-        ui.communicate_error(config.error, config)
+        ui.communicate_error(config.error)
         return
     
     if options.from_empty:
         empty_folder(config.download_path)
 
-    ui.communicate_progress("start_read", config)
+    ui.communicate_progress("start_read")
 
     data = pd.read_excel(config.url_sheet_path)
     if options.only_first_hundred:
@@ -45,26 +47,26 @@ async def do_downloads(config_file_name, ui, options):
 
     config.check_columns(data)
     if config.error != None:
-        ui.communicate_error(config.error, config)
+        ui.communicate_error(config.error)
         return
 
-    ui.communicate_progress("end_read", config)
+    ui.communicate_progress("end_read")
 
     ui.data_length = len(data.index)
 
     if not options.skip_downloads:
-        ui.communicate_progress("start_download", config)
+        ui.communicate_progress("start_download")
         results = await downloader.try_download_all(data, config, ui.progress_bar.add)
-        ui.communicate_progress("end_download", config)
+        ui.communicate_progress("end_download")
     else:
         files = already_downloaded(config.download_path)
         results = [(filename in files) for filename in data[config.save_as]]
 
-    ui.communicate_progress("start_save", config)
+    ui.communicate_progress("start_save")
 
     success = save_download_results(data, results, config.save_as, config.result_sheet_path)
     if success:
-        ui.communicate_progress("end_save", config)
+        ui.communicate_progress("end_save")
     else:
         ui.communicate_error("save_failed")
     ui.finish()

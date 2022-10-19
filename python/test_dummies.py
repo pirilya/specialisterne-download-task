@@ -30,6 +30,8 @@ class ui:
         pass
     def finish(self):
         pass
+    def attach_config(self, *args):
+        pass
 
 class flags:
     def __init__(self):

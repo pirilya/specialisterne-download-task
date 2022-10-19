@@ -68,6 +68,10 @@ class config:
             self.timeout = _ensure_is_positive_int(self.raw["timeout"])
         except Exception as e:
             self.error = str(e)
+    def all_attrs(self):
+        result = self.raw.copy()
+        result.update(self.__dict__)
+        return result
     def check_columns(self, df):
         if not self.save_as in df.columns:
             self.error = "id_column_not_found"

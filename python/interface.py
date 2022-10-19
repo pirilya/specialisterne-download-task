@@ -52,17 +52,21 @@ class messages:
     def __init__(self, has_timer = False):
         self.timer = stopwatch() if has_timer else None
         self.data_length = 0
+        self._config = None
     def output(self, msg, **kwargs):
         formatted = msg.format(**kwargs)
         print(formatted)
-    def communicate_error(self, msg, config):
-        print(msg)
-        self.output(self.error_msg[msg], **config.raw)
-    def communicate_progress (self, msg, config):
+    def communicate_error(self, msg):
+        if self._config == None:
+            # the way the code is currently set up, this case will never happen, but better be prepared for future code changes
+            self.output(self.error_msg[msg])
+        else:
+            self.output(self.error_msg[msg], **self._config.all_attrs())
+    def communicate_progress (self, msg):
         if msg == "end_download":
             self.progress_bar.finish()
 
-        self.output(self.progress_msg[msg], **config.__dict__)
+        self.output(self.progress_msg[msg], **self._config.all_attrs())
 
         if msg == "start_download":
             self.progress_bar = progress_bar(self.data_length, print)
@@ -71,5 +75,7 @@ class messages:
     def finish(self):
         if self.timer != None:
             self.timer.finish()
+    def attach_config(self, config):
+        self._config = config
 
 
