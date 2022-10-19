@@ -36,11 +36,11 @@ def test_parse_config ():
 def test_check_columns():
     data = download_files.pd.DataFrame(data={'col1' : [1,2], 'col2' : [3,4]})
 
-    failing_config = test_dummies.config(**{"save_as" : "col1", "columns_to_check" : ["nonexistant column name"]})
+    failing_config = test_dummies.config({"save_as" : "col1", "columns_to_check" : ["nonexistant column name"]})
     failing_config.check_columns(data)
     assert failing_config.error == "check_column_not_found"
 
-    passing_config = test_dummies.config(**{"save_as" : "col1", "columns_to_check" : ["col2"]})
+    passing_config = test_dummies.config({"save_as" : "col1", "columns_to_check" : ["col2"]})
     passing_config.check_columns(data)
     assert passing_config.error == None
 
@@ -65,7 +65,7 @@ async def test_try_multiple_download():
         'name' : ["test1", "test2", "test3"]
         })
     expected = [True, True, False]
-    config = test_dummies.config(**{"save_as" : "name", "download_path" : "python/test/downloads", "columns_to_check" : ["col1", "col2"], "timeout" : 30})
+    config = test_dummies.config({"save_as" : "name", "download_path" : "python/test/downloads", "columns_to_check" : ["col1", "col2"], "timeout" : 30})
     server = await test_dummies.make_server()
     def aggregator (thing):
         pass

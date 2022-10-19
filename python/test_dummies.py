@@ -14,8 +14,8 @@ async def make_server():
     return server
 
 class config(config_functions.config):
-    def __init__(self, **kwargs):
-        self.__dict__ = kwargs
+    def __init__(self, content_dict):
+        self.__dict__ = content_dict
         self.error = None
 
 class ui:
