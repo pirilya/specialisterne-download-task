@@ -78,6 +78,9 @@ class flags:
         self.has_timer = "--timer" in sys.argv
         self.from_empty = "--from-empty" in sys.argv
         self.only_first_hundred = "--first-hundred" in sys.argv
+        other = [a for a in sys.argv if a[:2] == "--" and a not in ["--no-download", "--timer", "--from-empty", "--first-hundred"]]
+        if len(other) > 0:
+            raise Exception(f"flag not recognized: {other}")
 
 if __name__ == "__main__":
     flags = flags()
