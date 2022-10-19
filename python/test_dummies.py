@@ -1,5 +1,6 @@
 import aiohttp.test_utils, aiohttp.web
 import time
+import config_functions
 
 async def make_server():
     async def respond (req):
@@ -12,15 +13,20 @@ async def make_server():
     server = aiohttp.test_utils.TestServer(app)
     return server
 
+class config(config_functions.config):
+    def __init__(self, **kwargs):
+        self.__dict__ = kwargs
+        self.error = None
+
 class ui:
     class progress_bar:
         def add(self, *args):
             pass
     def __init__(self, *args):
         pass
-    def communicate_error(self, msg):
+    def communicate_error(self, *args):
         pass
-    def communicate_progress (self, msg):
+    def communicate_progress (self, *args):
         pass
     def finish(self):
         pass

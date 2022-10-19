@@ -11,16 +11,10 @@ import aiohttp.test_utils
 def test_parse_config ():
     # I cannot be bothered to test all the myriad ways a config file can be broken
     # So I'm just picking one of the ways, and that'll have to do.
-    error = None
-    try:
-        raw_config = config_functions.read_config("python/test/broken-config.json")
-        config = config_functions.parse_config(raw_config)
-    except Exception as e:
-        error = str(e)
-    assert error == "url_sheet_not_found"
+    config = config_functions.config("python/test/broken-config.json")
+    assert config.error == "url_sheet_not_found"
 
-    raw_config = config_functions.read_config("python/test/working-config.json")
-    config = config_functions.parse_config(raw_config)
+    config = config_functions.config("python/test/working-config.json")
     expected = {
         "download_path" : "python/test/downloads",
         "url_sheet_path" : "python/test/sheets/urls.xlsx",
@@ -34,21 +28,21 @@ def test_parse_config ():
     # we don't care whether the paths are the same character-for-character, 
     # only whether they resolve to the same path
     for key in path_keys:
-        assert os.path.samefile(config[key], expected[key])
+        assert os.path.samefile(config.__dict__[key], expected[key])
 
     for key in other_keys:
-        assert config[key] == expected[key]
+        assert config.__dict__[key] == expected[key]
 
 def test_check_columns():
     data = download_files.pd.DataFrame(data={'col1' : [1,2], 'col2' : [3,4]})
 
-    failing_config = {"save_as" : "col1", "columns_to_check" : ["nonexistant column name"]}
-    success, _ = config_functions.check_columns(data, failing_config)
-    assert not success
+    failing_config = test_dummies.config(**{"save_as" : "col1", "columns_to_check" : ["nonexistant column name"]})
+    failing_config.check_columns(data)
+    assert failing_config.error == "check_column_not_found"
 
-    passing_config = {"save_as" : "col1", "columns_to_check" : ["col2"]}
-    success, _ = config_functions.check_columns(data, passing_config)
-    assert success
+    passing_config = test_dummies.config(**{"save_as" : "col1", "columns_to_check" : ["col2"]})
+    passing_config.check_columns(data)
+    assert passing_config.error == None
 
 
 async def test_download_file():
@@ -71,7 +65,7 @@ async def test_try_multiple_download():
         'name' : ["test1", "test2", "test3"]
         })
     expected = [True, True, False]
-    config = {"save_as" : "name", "download_path" : "python/test/downloads", "columns_to_check" : ["col1", "col2"], "timeout" : 30}
+    config = test_dummies.config(**{"save_as" : "name", "download_path" : "python/test/downloads", "columns_to_check" : ["col1", "col2"], "timeout" : 30})
     server = await test_dummies.make_server()
     def aggregator (thing):
         pass

@@ -27,47 +27,43 @@ def empty_folder (folderpath):
         os.remove(os.path.join(folderpath, f))
 
 async def do_downloads(config_file_name, ui, options):
-    # if the config file is invalid, we shouldn't execute the rest of the code!
-    try:
-        raw_config = config_functions.read_config(config_file_name)
-        ui.raw_config = raw_config
-        config = config_functions.parse_config(raw_config)
-    except Exception as e:
-        ui.communicate_error(str(e))
+
+    config = config_functions.config(config_file_name)
+    
+    if config.error != None:
+        ui.communicate_error(config.error, config)
         return
-    ui.raw_config = {}
-    ui.config = config
     
     if options.from_empty:
-        empty_folder(config["download_path"])
+        empty_folder(config.download_path)
 
-    ui.communicate_progress("start_read")
+    ui.communicate_progress("start_read", config)
 
-    data = pd.read_excel(config["url_sheet_path"])
+    data = pd.read_excel(config.url_sheet_path)
     if options.only_first_hundred:
-        data = data[:20].copy()
+        data = data[:100].copy()
     ui.data = data
 
-    success, err_msg = config_functions.check_columns(data, config)
-    if not success:
-        ui.communicate_error(err_msg)
+    config.check_columns(data)
+    if config.error != None:
+        ui.communicate_error(config.error, config)
         return
 
-    ui.communicate_progress("end_read")
+    ui.communicate_progress("end_read", config)
 
     if not options.skip_downloads:
-        ui.communicate_progress("start_download")
+        ui.communicate_progress("start_download", config)
         results = await downloader.try_download_all(data, config, ui.progress_bar.add)
-        ui.communicate_progress("end_download")
+        ui.communicate_progress("end_download", config)
     else:
-        files = already_downloaded(config["download_path"])
-        results = [(filename in files) for filename in data[config["save_as"]]]
+        files = already_downloaded(config.download_path)
+        results = [(filename in files) for filename in data[config.save_as]]
 
-    ui.communicate_progress("start_save")
+    ui.communicate_progress("start_save", config)
 
-    success = save_download_results(data, results, config["save_as"], config["result_sheet_path"])
+    success = save_download_results(data, results, config.save_as, config.result_sheet_path)
     if success:
-        ui.communicate_progress("end_save")
+        ui.communicate_progress("end_save", config)
     else:
         ui.communicate_error("save_failed")
     ui.finish()

@@ -23,16 +23,16 @@ async def download_file(session, url, download_location, timeout):
 
 # returns true if, after execution, the file is downloaded, and false if it isn't
 async def try_multiple_columns_download_file(session, dataframe, line_id, config, aggregator):
-    filename = dataframe.at[line_id, config["save_as"]]
-    download_path = os.path.join(config["download_path"], filename + '.pdf')
+    filename = dataframe.at[line_id, config.save_as]
+    download_path = os.path.join(config.download_path, filename + '.pdf')
     if os.path.exists(download_path):
         aggregator(True)
         return True
-    urls_to_try = [ dataframe.at[line_id, column_name] for column_name in config["columns_to_check"] ]
+    urls_to_try = [ dataframe.at[line_id, column_name] for column_name in config.columns_to_check ]
     for url in urls_to_try:
         if (type(url) == str): # pandas reads empty cells as floats, we gotta check for that or the script gets confused
             try:
-                await download_file(session, url, download_path, config["timeout"])
+                await download_file(session, url, download_path, config.timeout)
                 aggregator(True)
                 return True
             except Exception as e:
@@ -46,7 +46,7 @@ async def try_download_all(dataframe, config, output_f):
     # setting the same user-agent that my actual browser has, so we don't get caught by bot detection
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"}
     
-    timeout = aiohttp.ClientTimeout(total=None, sock_connect=config["timeout"], sock_read=config["timeout"])
+    timeout = aiohttp.ClientTimeout(total=None, sock_connect=config.timeout, sock_read=config.timeout)
     async with aiohttp.ClientSession( headers = headers, timeout = timeout ) as session:
         function_calls = [try_multiple_columns_download_file(session, dataframe, j, config, output_f) for j in dataframe.index]
         return await asyncio.gather(*function_calls)

@@ -16,7 +16,7 @@ def _sheet_path(folderpath, filename, must_exist = False):
         raise Exception("url_sheet_not_found")
     return path
 
-def read_config(filepath):
+def _read_config(filepath):
     try:
         with open(filepath, "r") as f:
             json_str = f.read()
@@ -53,28 +53,24 @@ def _ensure_is_positive_int(timeout_str):
         raise Exception("not_positive_int")
     return timeout
 
-def parse_config(raw_config):
-    _error_if_incomplete(raw_config)
-    config = {
-        "save_as" : raw_config["filename_column"],
-        "download_path" : 
-            _create_if_doesnt_exist(raw_config["downloads_location"]),
-        "url_sheet_path" : 
-            _sheet_path(raw_config["sheets_location"], raw_config["name_of_sheet_with_urls"], must_exist = True),
-        "result_sheet_path" : 
-            _sheet_path(raw_config["sheets_location"], raw_config["name_of_sheet_with_results"]),
-        "columns_to_check" :
-            _ensure_is_list(raw_config["columns_to_check"]),
-        "timeout" :
-            _ensure_is_positive_int(raw_config["timeout"])
-    }
-    return config
-
-
-def check_columns(df, config):
-    if not config["save_as"] in df.columns:
-        return False, "id_column_not_found"
-    for column_name in config["columns_to_check"]:
-        if not column_name in df.columns:
-            return False, "check_column_not_found"
-    return True, None
+class config:
+    def __init__(self, path):
+        self.error = None
+        self.raw = {}
+        try:
+            self.raw = _read_config(path)
+            _error_if_incomplete(self.raw)
+            self.save_as = self.raw["filename_column"]
+            self.download_path = _create_if_doesnt_exist(self.raw["downloads_location"])
+            self.url_sheet_path = _sheet_path(self.raw["sheets_location"], self.raw["name_of_sheet_with_urls"], must_exist = True)
+            self.result_sheet_path = _sheet_path(self.raw["sheets_location"], self.raw["name_of_sheet_with_results"])
+            self.columns_to_check = _ensure_is_list(self.raw["columns_to_check"])
+            self.timeout = _ensure_is_positive_int(self.raw["timeout"])
+        except Exception as e:
+            self.error = str(e)
+    def check_columns(self, df):
+        if not self.save_as in df.columns:
+            self.error = "id_column_not_found"
+        for column_name in self.columns_to_check:
+            if not column_name in df.columns:
+                self.error = "check_column_not_found"
