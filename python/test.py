@@ -13,12 +13,14 @@ def test_parse_config ():
     # So I'm just picking one of the ways, and that'll have to do.
     error = None
     try:
-        config_functions.parse_config("python/test/broken-config.json")
+        raw_config = config_functions.read_config("python/test/broken-config.json")
+        config = config_functions.parse_config(raw_config)
     except Exception as e:
-        error = e
-    assert error != None
+        error = str(e)
+    assert error == "url_sheet_not_found"
 
-    config = config_functions.parse_config("python/test/working-config.json")
+    raw_config = config_functions.read_config("python/test/working-config.json")
+    config = config_functions.parse_config(raw_config)
     expected = {
         "download_path" : "python/test/downloads",
         "url_sheet_path" : "python/test/sheets/urls.xlsx",
@@ -85,12 +87,12 @@ async def test_full ():
     download_folder = "python/test/downloads"
     download_files.empty_folder(download_folder)
 
-    await download_files.do_downloads("python/test/working-config.json", test_dummies.dont_print)
+    await download_files.do_downloads("python/test/working-config.json", test_dummies.ui())
 
     assert os.listdir(download_folder) == ["working-pdf-1.pdf", "working-pdf-2.pdf"]
 
     # next let's try to run it on a non-empty downloads folder
-    await download_files.do_downloads("python/test/working-config.json", test_dummies.dont_print)
+    await download_files.do_downloads("python/test/working-config.json", test_dummies.ui())
 
     assert os.listdir(download_folder) == ["working-pdf-1.pdf", "working-pdf-2.pdf"]
 
@@ -103,7 +105,7 @@ async def run_all_tests ():
         await test_full()
     finally:
         # after testing, let's clean up after ourselves.
-        empty_folder("python/test/downloads")
+        download_files.empty_folder("python/test/downloads")
 
 if __name__ == "__main__":
     asyncio.run(run_all_tests())
