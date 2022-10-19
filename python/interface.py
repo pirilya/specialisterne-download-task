@@ -11,13 +11,12 @@ class stopwatch:
         print(f"{'':50} Total time: {time.time() - self.start} seconds.")
 
 class progress_bar:
-    def __init__(self, total, output_f):
+    def __init__(self, total):
         self.total = total
         self.finished = self.successes = self.fails = 0
-        self.output_f = output_f
     def __print_self(self, delete):
         endchar = "\r" if delete else "\n"
-        self.output_f(f"{self.finished:>10} / {self.total} ({self.successes} successes, {self.fails} failures)", end=endchar)
+        print(f"{self.finished:>10} / {self.total} ({self.successes} successes, {self.fails} failures)", end=endchar)
     def add(self, is_success):
         if is_success:
             self.successes += 1
@@ -69,7 +68,7 @@ class messages:
         self.output(self.progress_msg[msg], **self._config.all_attrs())
 
         if msg == "start_download":
-            self.progress_bar = progress_bar(self.data_length, print)
+            self.progress_bar = progress_bar(self.data_length)
         if msg[:4] == "end_" and self.timer != None:
             self.timer.step()
     def finish(self):
