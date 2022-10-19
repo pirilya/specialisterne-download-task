@@ -6,6 +6,7 @@ import sys
 
 import download_files_core as downloader
 import config_functions
+import interface
 
 def save_download_results(dataframe, results, filename_column, results_filename):
     results_df = pd.DataFrame(index = dataframe.index)
@@ -17,74 +18,59 @@ def save_download_results(dataframe, results, filename_column, results_filename)
     except PermissionError:
         return False
 
-class progress_bar:
-    def __init__(self, total, output_f):
-        self.total = total
-        self.finished = self.successes = self.fails = 0
-        self.output_f = output_f
-    def __print_self(self, delete):
-        endchar = "\r" if delete else "\n"
-        self.output_f(f"{self.finished:>10} / {self.total} ({self.successes} successes, {self.fails} failures)", end=endchar)
-    def add(self, is_success):
-        if is_success:
-            self.successes += 1
-        else:
-            self.fails += 1
-        self.finished += 1
-        self.__print_self(True)
-    def finish(self):
-        self.__print_self(False)
+def already_downloaded(download_path):
+    files = glob.glob(os.path.join(config["download_path"], "*.pdf")) 
+    return set(os.path.basename(f)[:-4] for f in files)
 
-
-async def do_downloads(config_file_name, output_f, milestone_f = lambda: None):
-
+async def do_downloads(config_file_name, output_f):
     # read flags
     skip_downloads = "--no-download" in sys.argv
+    has_timer = "--timer" in sys.argv
+    from_empty = "--from-empty" in sys.argv
+    only_first_hundred = "--first-hundred" in sys.argv
 
+    ui = interface.messages(output_f, has_timer = has_timer)
     # if the config file is invalid, we shouldn't execute the rest of the code!
     try:
         config = config_functions.parse_config(config_file_name)
     except Exception as e:
         output_f(e)
         return
+    ui.config = config
 
-    output_f("Reading URL sheet...")
+    if from_empty:
+        empty_folder(config["download_path"])
+
+    ui.communicate_progress("start_read")
 
     data = pd.read_excel(config["url_sheet_path"])
-    data = data[:100].copy()
+    if only_first_hundred:
+        data = data[:100].copy()
+    ui.data = data
 
     success, err_msg = config_functions.check_columns(data, config)
     if not success:
         output_f(err_msg)
         return
 
-    output_f("URL sheet has been read.")
-    milestone_f()
+    ui.communicate_progress("end_read")
 
     if not skip_downloads:
-        output_f("Starting downloads...")
-
-        progress = progress_bar(len(data.index), output_f)
-        results = await downloader.try_download_all(data, config, progress.add)
-        progress.finish()
-
-        output_f("All downloads are done.")
-        milestone_f()
+        ui.communicate_progress("start_download")
+        results = await downloader.try_download_all(data, config, ui.progress_bar.add)
+        ui.communicate_progress("end_download")
     else:
-        files = glob.glob(os.path.join(config["download_path"], "*.pdf")) 
-        files = set(os.path.basename(f)[:-4] for f in files)
+        files = already_downlaoded(config["download_path"])
         results = [(filename in files) for filename in data[config["save_as"]]]
 
-
-    output_f("Saving results...")
+    ui.communicate_progress("start_save")
 
     success = save_download_results(data, results, config["save_as"], config["result_sheet_path"])
     if success:
-        output_f(f"Results saved in {config['result_sheet_path']}")
+        ui.communicate_progress("end_save")
     else:
         output_f(f"Could not save download results in {config['result_sheet_path']}. This might be because you have the file open.")
-    milestone_f()
-    return
+    ui.finish()
 
 if __name__ == "__main__":
     asyncio.run(do_downloads("config.json", print))
