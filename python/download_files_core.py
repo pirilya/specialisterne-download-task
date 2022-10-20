@@ -42,11 +42,15 @@ async def try_multiple_columns_download_file(session, dataframe, line_id, config
     return False
 
 
-async def try_download_all(dataframe, config, output_f):
+def try_download_all(dataframe, config, output_f):
     # setting the same user-agent that my actual browser has, so we don't get caught by bot detection
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0"}
     
     timeout = aiohttp.ClientTimeout(total=None, sock_connect=config.timeout, sock_read=config.timeout)
-    async with aiohttp.ClientSession( headers = headers, timeout = timeout ) as session:
-        function_calls = [try_multiple_columns_download_file(session, dataframe, j, config, output_f) for j in dataframe.index]
-        return await asyncio.gather(*function_calls)
+    async def inner():
+        # this is kind of a clunky way to do things 
+        # but having to unpack the "async with" to synchronous calls would also be clunky!
+        async with aiohttp.ClientSession( headers = headers, timeout = timeout ) as session:
+            function_calls = [try_multiple_columns_download_file(session, dataframe, j, config, output_f) for j in dataframe.index]
+            return await asyncio.gather(*function_calls)
+    return asyncio.run(inner())

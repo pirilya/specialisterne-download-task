@@ -1,4 +1,3 @@
-import asyncio
 import pandas as pd
 import os.path
 import glob
@@ -26,7 +25,7 @@ def empty_folder (folderpath):
     for f in os.listdir(folderpath):
         os.remove(os.path.join(folderpath, f))
 
-async def do_downloads(config_file_name, ui, options):
+def do_downloads(config_file_name, ui, options):
 
     config = config_functions.config(config_file_name)
 
@@ -56,7 +55,7 @@ async def do_downloads(config_file_name, ui, options):
 
     if not options.skip_downloads:
         ui.communicate_progress("start_download")
-        results = await downloader.try_download_all(data, config, ui.progress_bar.add)
+        results = downloader.try_download_all(data, config, ui.progress_bar.add)
         ui.communicate_progress("end_download")
     else:
         files = already_downloaded(config.download_path)
@@ -84,4 +83,4 @@ class flags:
 if __name__ == "__main__":
     flags = flags()
     ui = interface.messages(has_timer = flags.has_timer)
-    asyncio.run(do_downloads("config.json", ui, flags))
+    do_downloads("config.json", ui, flags)
