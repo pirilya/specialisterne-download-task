@@ -19,7 +19,7 @@ def save_download_results(dataframe, results, filename_column, results_filename)
 
 def already_downloaded(download_path):
     files = glob.glob(os.path.join(download_path, "*.pdf")) 
-    return set(os.path.basename(f)[:-4] for f in files)
+    return set(os.path.splitext(f)[0] for f in files)
 
 def empty_folder (folderpath):
     for f in os.listdir(folderpath):
